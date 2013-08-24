@@ -1,7 +1,116 @@
 {% extends "base.html" %}
 
+
+
 {% block content %}
 
-questionnaires data is here!
+<script>
 
+	function submitQuery(type, params) {
+		console.log('submitting '+ type + params['pretty'])
+
+		var opts = {
+			lines: 17, // The number of lines to draw
+			length: 0, // The length of each line
+			width: 10, // The line thickness
+			radius: 31, // The radius of the inner circle
+			corners: 1, // Corner roundness (0..1)
+			rotate: 0, // The rotation offset
+			direction: 1, // 1: clockwise, -1: counterclockwise
+			color: '#000', // #rgb or #rrggbb or array of colors
+			speed: 1, // Rounds per second
+			trail: 100, // Afterglow percentage
+			shadow: false, // Whether to render a shadow
+			hwaccel: true, // Whether to use hardware acceleration
+			className: 'spinner', // The CSS class to assign to the spinner
+			zIndex: 2e9, // The z-index (defaults to 2000000000)
+			top: 'auto', // Top position relative to parent in px
+			left: 'auto' // Left position relative to parent in px
+		};
+
+
+		var target = document.getElementById('results_spinner');
+		var spinner = new Spinner(opts).spin(target);
+
+	
+	
+		$.get(
+		'https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/?bearer_token=2755fa6a97&decrypted=True', params, 
+		function(data) { gotData(data, params); })
+	}
+
+	function selectText(containerid) {
+		if (document.selection) {
+			var range = document.body.createTextRange();
+			range.moveToElementText(document.getElementById(containerid));
+			range.select();
+			} else if (window.getSelection) {
+			var range = document.createRange();
+			range.selectNode(document.getElementById(containerid));
+			window.getSelection().addRange(range);
+		}
+	}
+
+
+	function gotData(data, params) {
+		console.log(data)
+		if (params['pretty'] == false)
+		{
+			data = JSON.stringify(data)
+		}
+		$('#results').html(data); 
+		$('#results_spinner').html(''); 
+
+
+	}
+
+
+	function buildParams() {
+		console.log(document.getElementById('param_pretty').checked
+)
+		params = {}
+		params['pretty'] = document.getElementById('param_pretty').checked
+		return params;
+	}
+
+</script>
+
+
+<style type="text/css">
+	.scrollable {
+		height: 100%;
+		overflow: auto;
+	}
+</style>
+
+<div class="page-header">
+	<h3>Location</h3>
+</div>
+
+	{{ tokens }}
+
+	<h4>
+	<form>
+		<input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting (pretty)
+	</form>
+
+	</h4>
+
+
+	<p><hr></p>
+
+	<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
+	<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
+	<button class="btn" type="button" onclick="$('#results').html('')"><i class="icon-remove"></i> Clear</button>
+	
+	
+	
+	<div id="results_spinner" style="position: relative;"></div>
+
+{% endblock %}
+
+{% block results %}
+	<p></hr></p>
+	<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
+		</div>
 {% endblock %}
