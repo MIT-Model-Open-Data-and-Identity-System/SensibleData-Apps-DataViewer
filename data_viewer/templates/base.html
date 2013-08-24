@@ -51,9 +51,34 @@
 		            <ul class="nav">
 		<li class="divider-vertical"></li>
 	<li><a href="{% url 'home' %}" class=""><i class="icon-home"></i> Home</a></li>
+		<!--<li class="divider-vertical"></li>-->
+	</ul>
+	</div>
+	
+	<div class="nav-collapse collapse">
+		            <ul class="nav">
+		<li class="divider-vertical"></li>
+	<li><a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'home' %}"><i class="icon-th-large"></i> 
+		Data <b class="caret"></b></a>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+			<li><a tabindex="-1" href="#">Questionnaires</a></li>
+			<li><a tabindex="-1" href="#">Facebook</a></li>
+			<li><a tabindex="-1" href="#">Mobile</a></li>
+		</ul>
+	</li>
+	</ul>
+	</div>
+
+	<div class="nav-collapse collapse">
+		            <ul class="nav">
+		<li class="divider-vertical"></li>
+	<li><a href="{% url 'home' %}" class=""><i class="icon-tag"></i> About</a></li>
+		<li class="divider-vertical"></li>
+		<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> Quit</a></li>
 		<li class="divider-vertical"></li>
 	</ul>
 	</div>
+
 	<ul class="nav pull-right action">
 		  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
 		<i class="icon-user icon-white"></i>
@@ -90,22 +115,36 @@
 
 <div class="container">
 
+	{% if user.is_authenticated %}
+	<div class="hero-unit">
+		<h1>Hello!</h1>
+		<p>Intro</p>
+	</div>
+	<ul class="thumbnails">
+		<li class="span4">
+			<div class="thumbnail">
+			<a href="#"><h3>Questionnaires</h3></a>
+			<p>Description...</p>
+			</div>
+		</li>
+		<li class="span4">
+		    <div class="thumbnail">
+		    <a href="#"><h3>Facebook</h3></a>
+		    <p>Description...</p>
+		    </div>
+		</li>
+		<li class="span4">
+		    <div class="thumbnail">
+		    <a href="#"><h3>Mobile</h3></a>
+		    <p>Description...</p>
+		    </div>
+		</li>
+	</ul>
+	{% else %}
 	{% bootstrap_messages %}
-
-<ul class="nav nav-pills">
-	<li class="active">
-		<a href="/questionnaire/">questionnaire</a>
-	</li>
-	<li>
-		<a href="#">location</a>
-	</li>
-	<li>
-		<a href="#">battery</a>
-	</li>
-</ul>
-
 	{% block content %}Empty page{% endblock %}
-
+	{% endif %}
+	
 	<p><hr></p>
 
 	<footer class="row">
