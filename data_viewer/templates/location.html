@@ -7,7 +7,7 @@
 <script>
 
 	function submitQuery(type, params) {
-		console.log('submitting '+ type + params['pretty'])
+		console.log('submitting '+ type + params['pretty']+params['fields'])
 
 		var opts = {
 			lines: 17, // The number of lines to draw
@@ -64,12 +64,46 @@
 
 	}
 
+	function validate(){
+		var chks = document.getElementsByName('sort[]');
+		for (var i = 0; i < chks.length; i++)
+		{
+			if (chks[i].checked)
+			{
+				return chks[i].value
+				break;
+			}
+		}
+	}
 
 	function buildParams() {
-		console.log(document.getElementById('param_pretty').checked
-)
+		console.log(document.getElementById('param_pretty').checked)
 		params = {}
 		params['pretty'] = document.getElementById('param_pretty').checked
+		
+		if (document.getElementById('time_stamp').checked)
+			{params['fields'] = params['fields'] + ',' + document.getElementById('time_stamp').value}
+
+		if (document.getElementById('longitud').checked)
+			{params['fields'] = params['fields']+',' + document.getElementById('longitud').value}
+
+		if (document.getElementById('latitude').checked)
+			{params['fields'] = params['fields']+',' + document.getElementById('latitude').value}
+		
+		if (document.getElementById('provider').checked)
+			{params['fields'] = params['fields']+',' + document.getElementById('provider').value}
+		
+		if (document.getElementById('accuracy').checked)
+			{params['fields'] = params['fields']+',' + document.getElementById('accuracy').value}
+
+		params['sort'] = validate()
+
+		if (document.getElementById('start_date').value !='')
+			{params['start_date'] = document.getElementById('start_date').value}
+
+		if (document.getElementById('end_date').value !='')
+			{params['end_date'] = document.getElementById('end_date').value}
+
 		return params;
 	}
 
@@ -93,6 +127,52 @@
 	<form>
 		<input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting (pretty)
 	</form>
+
+	<form>
+		<fieldset>
+		    <label>Sort</label>
+		    <input type="radio" name="sort[]" id="descending" value="-1"> Descending
+		    <input type="radio" name="sort[]" id="ascending" value="1"> Ascending
+		</fieldset>
+	</form>
+
+	<form>
+		<input type="checkbox" id='time_stamp' value="timestamp"> Time stamp
+	</form>
+
+	
+	<form>
+		<input type="checkbox" id='longitud' value="data.LOCATION.mLongitude"> Longitud
+	</form>
+
+	
+	<form>
+		<input type="checkbox" id='latitude' value="data.LOCATION.mLatitude"> Latitude
+	</form>	
+	
+
+	<form>
+		<input type="checkbox" id='provider' value="data.LOCATION.mProvider"> Provider
+	</form>
+
+	
+	<form>
+		<input type="checkbox" id='accuracy' value="data.LOCATION.mAccuracy"> Accuracy
+	</form>
+
+
+	<form>
+		<fieldset>
+		    <label>Start Date</label>
+		    <input type="text" id='start_date' placeholder="Start date in seconds of epoch…">
+		</fieldset>
+	</form>
+	<form>
+		<fieldset>
+		    <label>End Date</label>
+		    <input type="text" id='end_date' placeholder="End date in seconds of epoch…">
+		</fieldset>
+	 </form>
 
 	</h4>
 
