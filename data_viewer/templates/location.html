@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 
-
 {% block content %}
 
 <script>
-
 	function submitQuery(type, params) {
-		console.log('submitting '+ type + params['pretty']+params['fields'])
+		console.log('submitting '+ type + ' ' +params['pretty'] + ' '+params['start_date'])
 
 		var opts = {
 			lines: 17, // The number of lines to draw
@@ -32,11 +30,10 @@
 		var target = document.getElementById('results_spinner');
 		var spinner = new Spinner(opts).spin(target);
 
-	
-	
-		$.get(
-		'https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/?bearer_token=2755fa6a97&decrypted=True', params, 
-		function(data) { gotData(data, params); })
+		console.log(params)
+		var jqxhr = $.get(
+		'https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/?bearer_token=' + used_token +'&decrypted=True', params, 
+		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired, we need to refresh the window'); location.reload(); } else alert('Something went wrong, try refreshing the page')});
 	}
 
 	function selectText(containerid) {
@@ -53,7 +50,7 @@
 
 
 	function gotData(data, params) {
-		console.log(data)
+		//console.log(data)
 		if (params['pretty'] == false)
 		{
 			data = JSON.stringify(data)
@@ -65,7 +62,7 @@
 	}
 
 	function validate(){
-		var chks = document.getElementsByName('sort[]');
+		var chks = document.getElementsByName('order[]');
 		for (var i = 0; i < chks.length; i++)
 		{
 			if (chks[i].checked)
@@ -78,37 +75,38 @@
 
 	function buildParams() {
 		console.log(document.getElementById('param_pretty').checked)
+		
 		params = {}
 		params['pretty'] = document.getElementById('param_pretty').checked
+		params['decrypted'] = document.getElementById('decrypted').checked
+
+		if (document.getElementById('fields').value !='')
+			{params['fields'] = document.getElementById('fields').value}
+		else
+			{params['fields'] = 'data.TIMESTAMP,data.LOCATION.mLongitude,data.LOCATION.mLatitude,data.LOCATION.mProvider,data.LOCATION.mAccuracy'}		
+
+		if (document.getElementById('sortby').value !='')
+			{params['sortby'] = document.getElementById('sortby').value}
+
+		params['order'] = validate()
+
+		//params['start_date'] = document.getElementById('start_date').text
+
+		//params['end_date'] = document.getElementById('end_date').text
 		
-		if (document.getElementById('time_stamp').checked)
-			{params['fields'] = params['fields'] + ',' + document.getElementById('time_stamp').value}
-
-		if (document.getElementById('longitud').checked)
-			{params['fields'] = params['fields']+',' + document.getElementById('longitud').value}
-
-		if (document.getElementById('latitude').checked)
-			{params['fields'] = params['fields']+',' + document.getElementById('latitude').value}
-		
-		if (document.getElementById('provider').checked)
-			{params['fields'] = params['fields']+',' + document.getElementById('provider').value}
-		
-		if (document.getElementById('accuracy').checked)
-			{params['fields'] = params['fields']+',' + document.getElementById('accuracy').value}
-
-		params['sort'] = validate()
-
 		if (document.getElementById('start_date').value !='')
 			{params['start_date'] = document.getElementById('start_date').value}
-
+			
 		if (document.getElementById('end_date').value !='')
 			{params['end_date'] = document.getElementById('end_date').value}
 
+		if (document.getElementById('limit').value !='')
+			{params['limit'] = parseInt(document.getElementById('limit').value)}
+		
 		return params;
 	}
 
 </script>
-
 
 <style type="text/css">
 	.scrollable {
@@ -120,73 +118,109 @@
 <div class="page-header">
 	<h3>Location</h3>
 </div>
-
-	{{ tokens }}
-
-	<h4>
-	<form>
-		<input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting (pretty)
-	</form>
-
-	<form>
-		<fieldset>
-		    <label>Sort</label>
-		    <input type="radio" name="sort[]" id="descending" value="-1"> Descending
-		    <input type="radio" name="sort[]" id="ascending" value="1"> Ascending
-		</fieldset>
-	</form>
-
-	<form>
-		<input type="checkbox" id='time_stamp' value="timestamp"> Time stamp
-	</form>
+<h4>
+<div class="row">
+		<p>
+		<div class="span5">
+			<form> <input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting (pretty)</form>
+		</div>
 
 	
-	<form>
-		<input type="checkbox" id='longitud' value="data.LOCATION.mLongitude"> Longitud
-	</form>
+   		<div class="span5"> 
+			<form><input type="checkbox" id="decrypted" value="Decrypted"> Decrypted</form>
+		</div>
 
 	
-	<form>
-		<input type="checkbox" id='latitude' value="data.LOCATION.mLatitude"> Latitude
-	</form>	
+		<div class="span7">	
+			<form>
+			<fieldset>
+			    <!--<label>Order</label>-->
+			    <input type="radio" name="order[]" id="descending" value="-1"> Descending
+			    <input type="radio" name="order[]" id="ascending" value="1"> Ascending
+			</fieldset>
+			</form>
+		</div>
 	
 
-	<form>
-		<input type="checkbox" id='provider' value="data.LOCATION.mProvider"> Provider
-	</form>
+		<div class="span5"> 
+			<form>
+			<fieldset>
+			    <label>Fields to return</label>
+			    <input type="text" id='fields' placeholder="Enter the fields separeted with ','">
+			</fieldset>
+			</form>
+		</div> 
 
 	
-	<form>
-		<input type="checkbox" id='accuracy' value="data.LOCATION.mAccuracy"> Accuracy
-	</form>
-
-
-	<form>
-		<fieldset>
-		    <label>Start Date</label>
-		    <input type="text" id='start_date' placeholder="Start date in seconds of epoch…">
-		</fieldset>
-	</form>
-	<form>
-		<fieldset>
-		    <label>End Date</label>
-		    <input type="text" id='end_date' placeholder="End date in seconds of epoch…">
-		</fieldset>
-	 </form>
-
-	</h4>
-
-
-	<p><hr></p>
-
-	<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
-	<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
-	<button class="btn" type="button" onclick="$('#results').html('')"><i class="icon-remove"></i> Clear</button>
+		<div class="span5">
+			<form>
+			<fieldset>
+			    <label>Sort by</label>
+			    <input type="text" id='sortby' placeholder="Field you want to sort by…">
+			</fieldset>
+			</form>
+		</div>
 	
-	
-	
-	<div id="results_spinner" style="position: relative;"></div>
 
+
+
+		
+		<div class="span5"> 
+			<label>Start Date</label>
+    <div class="input-append">
+		    <input class="span" type="number" id="start_date" value="" placeholder="epoch timestamp">
+			<button class="btn" type="button" id="start_date_picker"><i class="icon-calendar"></i></button>
+				    </div>
+
+					<script type="text/javascript">
+					    $('#start_date_picker').datepicker()
+						    .on('changeDate', function(e){
+						    var y = e.date.getTime()/1000
+						    $('#start_date')[0].value=y;
+						    });
+					</script>
+		</div>
+	
+
+		<div class="span5"> 
+			<label>End Date</label>
+    <div class="input-append">
+		    <input class="span" type="number" id="end_date" value="" placeholder="epoch timestamp">
+			<button class="btn" type="button" id="end_date_picker"><i class="icon-calendar"></i></button>
+				    </div>
+
+					<script type="text/javascript">
+					    $('#end_date_picker').datepicker()
+						    .on('changeDate', function(e){
+						    var y = e.date.getTime()/1000
+						    $('#end_date')[0].value=y;
+						    });
+					</script>
+		</div>
+
+		<div class="span5"> 
+			<form>
+			<fieldset>
+				<label>No. of documents</label>
+			    <input type="number" id='limit' value=1000 placeholder="No. of documents…">
+			</fieldset>
+			</form>
+		</div>
+</p>
+	
+</div>
+</h4>
+	<div class="row">
+		<p><hr></p>	
+		<div class="span6"> 
+			<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
+			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
+			<button class="btn" type="button" onclick="$('#results').html('')"><i class="icon-remove"></i> Clear</button>
+		</div>
+	</div>
+	
+
+	<div id="results_spinner"></div>
 {% endblock %}
 
 {% block results %}
