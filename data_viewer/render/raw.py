@@ -3,17 +3,31 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django_sensible import oauth2
+import json
+from django_sensible import SECURE_CONFIG
+from django.conf import settings
+from django.core.urlresolvers import reverse
 
 @login_required
 def location(request):
 	#TODO move this to a library
-	#TODO tokens that are not expired
+	#TODO tokens that are not expired for the researcher
+	
+	
 	tokens = {}
 	t1 = oauth2.getToken(request.user, 'connector_raw.all_data')
-	if not t1 == None: tokens['connector_raw.all_data'] = t1
+	#try to refresh token
+	r = oauth2.query('https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/', t1, '&dummy=True&decrypted=True', SECURE_CONFIG.CLIENT_ID, SECURE_CONFIG.CLIENT_SECRET, settings.APPLICATION_URL[-1]+reverse('grant'), settings.SERVICE_REFRESH_TOKEN_URL)
+	
+	t1 = oauth2.getToken(request.user, 'connector_raw.all_data')
+	if not t1 == None: tokens['connector_raw_all_data'] = t1
+	
 	t2 = oauth2.getToken(request.user, 'connector_raw.all_data_researcher')
-	if not t2 == None: tokens['connector_raw.all_data_researcher'] = t2
-
+	r = oauth2.query('https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/', t2, '&dummy=True&decrypted=True', SECURE_CONFIG.CLIENT_ID, SECURE_CONFIG.CLIENT_SECRET, settings.APPLICATION_URL[-1]+reverse('grant'), settings.SERVICE_REFRESH_TOKEN_URL)
+	
+	t2 = oauth2.getToken(request.user, 'connector_raw.all_data_researcher')
+	if not t2 == None: tokens['connector_raw_all_data_researcher'] = t2
 
 	return render_to_response('location.html', {'tokens': tokens}, context_instance=RequestContext(request))
+	#return HttpResponse(json.dumps(tokens) + ' '+json.dumps(r))
 
