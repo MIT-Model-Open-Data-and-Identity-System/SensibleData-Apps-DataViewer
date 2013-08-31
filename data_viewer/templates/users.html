@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<script>
+
+	function submitQuery(type, params) {
+		query_start = (new Date).getTime();
+		$("#query_took").html("crunching big numbers for you...")
+
+		var opts = {
+			lines: 17, // The number of lines to draw
+			length: 0, // The length of each line
+			width: 10, // The line thickness
+			radius: 31, // The radius of the inner circle
+			corners: 1, // Corner roundness (0..1)
+			rotate: 0, // The rotation offset
+			direction: 1, // 1: clockwise, -1: counterclockwise
+			color: '#000', // #rgb or #rrggbb or array of colors
+			speed: 1, // Rounds per second
+			trail: 100, // Afterglow percentage
+			shadow: false, // Whether to render a shadow
+			hwaccel: true, // Whether to use hardware acceleration
+			className: 'spinner', // The CSS class to assign to the spinner
+			zIndex: 2e9, // The z-index (defaults to 2000000000)
+			top: 'auto', // Top position relative to parent in px
+			left: 'auto' // Left position relative to parent in px
+		};
+
+		
+		var target = document.getElementById('results_spinner');
+		var spinner = new Spinner(opts).spin(target);
+		
+		var jqxhr = $.get(
+		base_url+'user/?bearer_token=' + used_token, params, 
+		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired or is not valid, we will try to refresh the window'); location.reload(); } else {alert('Something went wrong...'); $('#results_spinner').html('')}});
+
+	}
+
+	function updateURL() {
+		params_string = ''
+		var params = buildParams();
+		for (key in params) {
+			params_string += key+'='+params[key]+'&'
+		}
+
+		url = base_url + 'user/?bearer_token='+used_token + '&' + params_string
+		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
+		
+	}
+
+
+	function selectText(containerid) {
+		if (document.selection) {
+			var range = document.body.createTextRange();
+			range.moveToElementText(document.getElementById(containerid));
+			range.select();
+			} else if (window.getSelection) {
+			var range = document.createRange();
+			range.selectNode(document.getElementById(containerid));
+			window.getSelection().addRange(range);
+		}
+	}
+
+
+	function gotData(data, params) {
+
+		if (params['pretty'] == false)
+		{
+			if (validate('visualization[]')=='-1')
+				{
+					data = JSON.stringify(data)
+					$('#results').html(data); 
+					$('#results_spinner').html(''); 
+				}
+			else if (validate('visualization[]')=='1')
+				{
+					var map;
+					var marker;
+					var mapOptions = {
+					    zoom: 11,
+					    center: new google.maps.LatLng(55.763516,12.494943),
+					    mapTypeId: google.maps.MapTypeId.ROADMAP
+					  };
+					$('#results').css('display', 'none'); 
+
+					content=data["results"]
+					for (var i=0; i<content.length; i++)
+					{
+						longitude=content[i]['data']['LOCATION']['geojson']['coordinates'][1];
+						latitude=content[i]['data']['LOCATION']['geojson']['coordinates'][0];
+						point_new = new google.maps.LatLng(latitude,longitude);
+						marker = new google.maps.Marker({
+						    map:map,
+						    draggable:false,
+						    position: point_new
+						  });
+					}	
+				}
+		}
+		else
+			{
+				$('#results').css('display', 'block'); 
+				$('#results').html(data); 
+			}
+
+	
+		$('#results_spinner').html(''); 
+		query_end = (new Date).getTime();
+		$("#query_took").html("took "+(query_end-query_start)+" ms")
+
+	}
+
+	function validate(name){
+		var chks = document.getElementsByName(name);
+		for (var i = 0; i < chks.length; i++)
+		{
+			if (chks[i].checked)
+			{
+				return chks[i].value
+				break;
+			}
+		}
+	}
+
+	function buildParams() {
+		params = {}
+		params['pretty'] = document.getElementById('param_pretty').checked
+		return params;
+	}
+
+</script>
+
+<style type="text/css">
+	.scrollable {
+		height: 100%;
+		overflow: auto;
+	}
+</style>
+
+
+<div class="page-header">
+	<h3>User</h3>
+	<div style="word-wrap: break-word;" id="div_url"></div>
+</div>
+
+<div class="row">
+<form id="params_form" onchange="updateURL();" onclick="updateURL();">
+		<p>
+		<div class="span5">
+			<p class="lead"><input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting</input></p>
+		</div>
+
+	
+
+</p>
+</form>
+</div>
+
+<div class="row">
+		<p><hr></p>	
+		<div class="span6"> 
+			<button class="btn btn-primary" type="button" onclick="submitQuery('user', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
+			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
+			<button class="btn" type="button" onclick="$('#results').html('');"><i class="icon-remove"></i> Clear</button>
+			<p><div id="query_took"></div></p>
+		</div>
+</div>
+
+	<div id="results_spinner"></div>
+{% endblock %}
+
+{% block results %}
+
+<p></hr></p>
+
+<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
+</div>
+
+
+<script>
+	updateURL()
+</script>
+
+{% endblock %}
