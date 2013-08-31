@@ -11,7 +11,6 @@ import utils
 
 
 def getTokens(request):
-	#TODO change URLs
 	tokens = {}
 	t1 = oauth2.getToken(request.user, 'connector_raw.all_data')
 	#try to refresh token
@@ -31,7 +30,7 @@ def getTokens(request):
 def location(request):
 	
 	tokens = getTokens(request)
-	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/location/'
+	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/'
 
 	scope = 'connector_raw.all_data=checked'
 
@@ -47,9 +46,10 @@ def users(request):
 	
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
+	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/'
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('users.html', {'tokens': tokens}, context_instance=RequestContext(request))
+	return render_to_response('users.html', {'tokens': tokens, 'base_url': base_url}, context_instance=RequestContext(request))
 
