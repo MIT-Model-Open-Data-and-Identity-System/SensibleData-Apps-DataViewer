@@ -4,8 +4,11 @@
 {% block content %}
 
 <script>
+
 	function submitQuery(type, params) {
-		console.log('submitting '+ type + ' ' +params['pretty'] + ' '+params['start_date'])
+		console.log('submitting '+ type + ' ' +params['pretty'])
+		query_start = (new Date).getTime();
+		$("#query_took").html("crunching big numbers for you...")
 
 		var opts = {
 			lines: 17, // The number of lines to draw
@@ -26,15 +29,28 @@
 			left: 'auto' // Left position relative to parent in px
 		};
 
-
+		
 		var target = document.getElementById('results_spinner');
 		var spinner = new Spinner(opts).spin(target);
-
-		console.log(params)
+		
 		var jqxhr = $.get(
-		'https://54.229.13.160/devel/sensible-dtu/connectors/connector_raw/v1/location/?bearer_token=' + used_token +'&decrypted=True', params, 
-		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired, we need to refresh the window'); location.reload(); } else alert('Something went wrong, try refreshing the page')});
+		base_url+'location/?bearer_token=' + used_token, params, 
+		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired or is not valid, we will try to refresh the window'); location.reload(); } else {alert('Something went wrong...'); $('#results_spinner').html('')}});
+
 	}
+
+	function updateURL() {
+		params_string = ''
+		var params = buildParams();
+		for (key in params) {
+			params_string += key+'='+params[key]+'&'
+		}
+
+		url = base_url + 'location/?bearer_token='+used_token + '&' + params_string
+		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
+		
+	}
+
 
 	function selectText(containerid) {
 		if (document.selection) {
@@ -50,19 +66,59 @@
 
 
 	function gotData(data, params) {
-		//console.log(data)
+
 		if (params['pretty'] == false)
 		{
-			data = JSON.stringify(data)
-		}
-		$('#results').html(data); 
-		$('#results_spinner').html(''); 
+			if (validate('visualization[]')=='-1')
+				{
+					data = JSON.stringify(data)
+					$('#results').html(data); 
+					$('#results_spinner').html(''); 
+				}
+			else if (validate('visualization[]')=='1')
+				{
+					var map;
+					var marker;
+					var mapOptions = {
+					    zoom: 11,
+					    center: new google.maps.LatLng(55.763516,12.494943),
+					    mapTypeId: google.maps.MapTypeId.ROADMAP
+					  };
+					$('#map-canvas').css('display', 'block'); 
+					$('#results').css('display', 'none'); 
+					  map = new google.maps.Map(document.getElementById('map-canvas'),
+					      mapOptions);
 
+					content=data["results"]
+					for (var i=0; i<content.length; i++)
+					{
+						longitude=content[i]['data']['LOCATION']['geojson']['coordinates'][1];
+						latitude=content[i]['data']['LOCATION']['geojson']['coordinates'][0];
+						point_new = new google.maps.LatLng(latitude,longitude);
+						marker = new google.maps.Marker({
+						    map:map,
+						    draggable:false,
+						    position: point_new
+						  });
+					}	
+				}
+		}
+		else
+			{
+				$('#map-canvas').css('display', 'none'); 
+				$('#results').css('display', 'block'); 
+				$('#results').html(data); 
+			}
+
+	
+		$('#results_spinner').html(''); 
+		query_end = (new Date).getTime();
+		$("#query_took").html("took "+(query_end-query_start)+" ms")
 
 	}
 
-	function validate(){
-		var chks = document.getElementsByName('order[]');
+	function validate(name){
+		var chks = document.getElementsByName(name);
 		for (var i = 0; i < chks.length; i++)
 		{
 			if (chks[i].checked)
@@ -77,22 +133,21 @@
 		console.log(document.getElementById('param_pretty').checked)
 		
 		params = {}
-		params['pretty'] = document.getElementById('param_pretty').checked
+		
+		if (validate('visualization[]')=='-1' ) //Text visualization
+			{params['pretty'] = document.getElementById('param_pretty').checked}
+		else if (validate('visualization[]')=='1' ) //Map visualization
+			{params['pretty'] = false}
+
 		params['decrypted'] = document.getElementById('decrypted').checked
 
 		if (document.getElementById('fields').value !='')
 			{params['fields'] = document.getElementById('fields').value}
-		else
-			{params['fields'] = 'data.TIMESTAMP,data.LOCATION.mLongitude,data.LOCATION.mLatitude,data.LOCATION.mProvider,data.LOCATION.mAccuracy'}		
 
 		if (document.getElementById('sortby').value !='')
 			{params['sortby'] = document.getElementById('sortby').value}
 
-		params['order'] = validate()
-
-		//params['start_date'] = document.getElementById('start_date').text
-
-		//params['end_date'] = document.getElementById('end_date').text
+		params['order'] = validate('order[]')
 		
 		if (document.getElementById('start_date').value !='')
 			{params['start_date'] = document.getElementById('start_date').value}
@@ -102,6 +157,9 @@
 
 		if (document.getElementById('limit').value !='')
 			{params['limit'] = parseInt(document.getElementById('limit').value)}
+		
+	if (document.getElementById('not_for_user_users').value !='')
+			{params['users'] = document.getElementById('not_for_user_users').value}
 		
 		return params;
 	}
@@ -115,116 +173,146 @@
 	}
 </style>
 
+
 <div class="page-header">
 	<h3>Location</h3>
+	<div style="word-wrap: break-word;" id="div_url"></div>
 </div>
-<h4>
+
 <div class="row">
+<form id="params_form" onchange="updateURL();" onclick="updateURL();">
 		<p>
 		<div class="span5">
-			<form> <input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting (pretty)</form>
+			<p class="lead"><input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting</input></p>
+		</div>
+
+		<div class="span5" id="not_for_researcher_decrypted"> 
+			<p class="lead"><input type="checkbox" id="decrypted" value="Decrypted"> Decrypted </input></p>
 		</div>
 
 	
-   		<div class="span5"> 
-			<form><input type="checkbox" id="decrypted" value="Decrypted"> Decrypted</form>
-		</div>
-
-	
-		<div class="span7">	
-			<form>
-			<fieldset>
-			    <!--<label>Order</label>-->
-			    <input type="radio" name="order[]" id="descending" value="-1"> Descending
-			    <input type="radio" name="order[]" id="ascending" value="1"> Ascending
-			</fieldset>
-			</form>
-		</div>
-	
-
-		<div class="span5"> 
-			<form>
-			<fieldset>
-			    <label>Fields to return</label>
-			    <input type="text" id='fields' placeholder="Enter the fields separeted with ','">
-			</fieldset>
-			</form>
-		</div> 
-
-	
-		<div class="span5">
-			<form>
-			<fieldset>
-			    <label>Sort by</label>
-			    <input type="text" id='sortby' placeholder="Field you want to sort by…">
-			</fieldset>
-			</form>
-		</div>
-	
-
-
-
-		
-		<div class="span5"> 
-			<label>Start Date</label>
-    <div class="input-append">
-		    <input class="span" type="number" id="start_date" value="" placeholder="epoch timestamp">
-			<button class="btn" type="button" id="start_date_picker"><i class="icon-calendar"></i></button>
-				    </div>
-
-					<script type="text/javascript">
-					    $('#start_date_picker').datepicker()
-						    .on('changeDate', function(e){
-						    var y = e.date.getTime()/1000
-						    $('#start_date')[0].value=y;
-						    });
-					</script>
-		</div>
-	
-
-		<div class="span5"> 
-			<label>End Date</label>
-    <div class="input-append">
-		    <input class="span" type="number" id="end_date" value="" placeholder="epoch timestamp">
-			<button class="btn" type="button" id="end_date_picker"><i class="icon-calendar"></i></button>
-				    </div>
-
-					<script type="text/javascript">
-					    $('#end_date_picker').datepicker()
-						    .on('changeDate', function(e){
-						    var y = e.date.getTime()/1000
-						    $('#end_date')[0].value=y;
-						    });
-					</script>
-		</div>
-
-		<div class="span5"> 
-			<form>
-			<fieldset>
-				<label>No. of documents</label>
-			    <input type="number" id='limit' value=1000 placeholder="No. of documents…">
-			</fieldset>
-			</form>
-		</div>
-</p>
-	
+<div class="span12">
+	<label>Sort by</label>
+		<p class="lead">
+				<input type="text" id='sortby' placeholder="Field you want to sort by"/>
+				<input type="radio" name="order[]" id="descending" value="-1"> Descending </input>
+				<input type="radio" name="order[]" id="ascending" value="1" checked> Ascending </input>
+		</p>
 </div>
-</h4>
-	<div class="row">
+	
+
+<div class="span12"> 
+	<label>Fields to return</label>
+		<div class="input-append">
+				<div class="dropdown">
+					<textarea rows="3" id='fields' placeholder="Enter the fields separeted with ','"></textarea>
+
+					<button class="btn btn-primary" type="button" id="fields_picker" onclick="{ if ($('#example').css('display') == 'block') $('#example').css('display', 'none'); else  $('#example').css('display', 'block'); updateURL(); }"><i class="icon-align-left icon-white"></i></button>
+					<button class="btn" type="button" id="fields_clear" onclick="{ $('#fields')[0].value = ''; updateURL();}"><i class="icon-remove"></i></button>
+
+
+					<div id="example" class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="position: relative">
+						<pre style="word-wrap: break-word; white-space: pre-wrap; font-family:monospace; display: block; margin: 1em 0px">
+<small>
+{{ example_doc | safe }}
+</small>
+						</pre>
+					</div>
+
+
+			</div>
+	</div>
+</div> 
+
+
+	
+
+<div class="span5"> 
+	<label>Start Date</label>
+	<div class="input-append">
+		<input class="span" type="number" id="start_date" value="" placeholder="epoch timestamp"></input>
+		<button class="btn btn-primary" type="button" id="start_date_picker"><i class="icon-calendar icon-white"></i></button>
+	</div>
+
+	<script type="text/javascript">
+		$('#start_date_picker').datepicker()
+			.on('changeDate', function(e){
+			var y = e.date.getTime()/1000
+			$('#start_date')[0].value=y;
+			updateURL();
+		});
+	</script>
+</div>
+	
+
+<div class="span5"> 
+	<label>End Date</label>
+	<div class="input-append">
+		<input class="span" type="number" id="end_date" value="" placeholder="epoch timestamp"></input>
+		<button class="btn btn-primary" type="button" id="end_date_picker"><i class="icon-calendar icon-white"></i></button>
+	</div>
+
+	<script type="text/javascript">
+		$('#end_date_picker').datepicker()
+			.on('changeDate', function(e){
+			var y = e.date.getTime()/1000
+			$('#end_date')[0].value=y;
+			updateURL();
+		});
+	</script>
+</div>
+
+<div class="span5"> 
+	<label>No. of documents (max. 1000)</label>
+	<input type="number" id='limit' max=1000 min=0 value=1000 placeholder="No. of documents"></input>
+</div>
+
+<div class="span5" id="not_for_user_users_div"> 
+	<label>Users</label>
+			<textarea rows="3" id='not_for_user_users' placeholder="Comma separated list of users"></textarea>
+</div> 
+
+
+	
+<div class="span6">
+	<label>Visualization</label>
+		<p class="lead">
+				<input type="radio" name="visualization[]" id="text" value="-1" checked> Text </input>
+				<input type="radio" name="visualization[]" id="map" value="1" > Map </input>
+		</p>
+
+</div>
+
+</p>
+</form>
+</div>
+
+<div class="row">
 		<p><hr></p>	
 		<div class="span6"> 
 			<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
 			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
-			<button class="btn" type="button" onclick="$('#results').html('')"><i class="icon-remove"></i> Clear</button>
+			<button class="btn" type="button" onclick="$('#results').html(''); $('#map-canvas').html('')"><i class="icon-remove"></i> Clear</button>
+			<p><div id="query_took"></div></p>
 		</div>
-	</div>
-	
+</div>
 
 	<div id="results_spinner"></div>
 {% endblock %}
 
 {% block results %}
-	<p></hr></p>
-	<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
-		</div>
+
+<p></hr></p>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.14&sensor=false"></script>
+<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
+</div>
+
+<div class= "span google-maps" id="map-canvas" style="height: 600px; display: none;">
+</div>
+
+<script>
+	updateURL()
+</script>
+
 {% endblock %}
