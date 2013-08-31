@@ -3,3 +3,5 @@
 *.pyc
 local_settings.py
 SECURE_*
+.DS_Store
+._*
