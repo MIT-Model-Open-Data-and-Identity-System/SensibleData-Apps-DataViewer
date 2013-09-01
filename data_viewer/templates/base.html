@@ -6,6 +6,9 @@
 	<noscript>
 		<meta http-equiv="refresh" content="0; url={% url "noscript" %}" />
 	</noscript>
+	<link rel="icon"
+	    type="image/png"
+		    href="{% static "img/favicon.png" %}">
     <meta charset="utf-8">
     <title>SensibleDTU: Data Viewer</title>
     <meta name="description" content="">
@@ -51,6 +54,7 @@
 				    <i class="icon-tasks"></i> Menu
 					          </button>
 
+			<div class="nav"><img src="{% static "img/red_logo5_40px.png" %}"></div>
             <a class="brand" href="{% url 'home' %}">SensibleDTU: Data Viewer</a>
 			{% if user.is_authenticated %}
 
@@ -174,8 +178,6 @@
 	<div class="row-fluid">
 		<div class="span3">
 
-
-
 			{% if user.is_authenticated %}
 		<ul class="nav nav-list">
 			<li class="nav-header">Raw Data</li>
@@ -200,6 +202,7 @@
 		{% endif %}
 
 		</div>
+
 		<div class="span9">
 	 		{% bootstrap_messages %}
 	     	{% block content %}{% endblock %}
@@ -212,12 +215,12 @@
 			</div>
 		</div>
 
-	
+		</div>
 	<p><hr></p>
 
 	<footer class="row">
 	<div class="span6">
-		<p>This is <a href="https://github.com/MIT-Model-Open-Data-and-Identity-System/django-sensible">SensibleDTU: Data Viewer</a>
+		<p>This is <a href="https://github.com/MIT-Model-Open-Data-and-Identity-System/SensibleData-Apps-DataViewer/">SensibleDTU: Data Viewer</a>
 		<span class="label label-important">0.0.1-devel</span></p>
 	</div>
 
@@ -229,7 +232,7 @@
 		</p>
 	</div>
 
-	<div class="span">
+	<div class="span6">
 		<p><a rel="license" href="https://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/80x15.png" /></a> <span xmlns:dct="https://purl.org/dc/terms/" property="dct:title"></span> licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.</p>
 	</div>	
 
