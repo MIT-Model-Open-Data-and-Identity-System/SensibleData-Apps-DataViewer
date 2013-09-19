@@ -2,6 +2,7 @@
 *.pot
 *.pyc
 local_settings.py
+LOCAL_*
 SECURE_*
 .DS_Store
 ._*
