@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 
 
+
 {% block content %}
 
+{% load staticfiles %}
+<script src="{% static "crossfilter.v1.min.js" %}"></script>
+<script src="{% static "d3.v3.min.js" %}"></script>
+
 <script>
+var globaldata;
 
 	function submitQuery(type, params) {
-		console.log('submitting '+ type + ' ' +params['pretty'])
+		//console.log('submitting '+ type + ' ' +params['pretty'])
 		query_start = (new Date).getTime();
 		$("#query_took").html("crunching big numbers for you...")
 
@@ -64,53 +70,613 @@
 		}
 	}
 
+	function drawpoints(listmarkers, content, map){
+		a = new Date()
+		if (content.length==0){
+			for (i in listmarkers){
+					listmarkers[i].setVisible(false);
+				};
+		}
+		else{
+				for (i in listmarkers){
+					date1=(content[content.length-1].data.TIMESTAMP)*1000
+					date2=(content[0].data.TIMESTAMP)*1000
+					if ((listmarkers[i].date.getTime()>date1)&&(listmarkers[i].date.getTime()<date2)){
+						listmarkers[i].setVisible(true);
+					}
+					else
+					{
+						listmarkers[i].setVisible(false);
+					}
+				}
+		}
+		//console.log('drawpoints: ' + (new Date().getTime() -a.getTime()) + ' ms');
+	}
+
+	//This function displays the map and the location points
+	function callmap(content){
+		var map;
+		var marker;
+		var listmarkers=[];
+		var infowindow= null;
+		var mapOptions = {
+		    zoom: 11,
+		    center: new google.maps.LatLng(55.763516,12.494943),
+		    mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		$('#map-canvas').css('display', 'block'); 
+		$('#results').css('display', 'none'); 			
+
+		map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+
+		infowindow = new google.maps.InfoWindow({
+			content: "holding..."
+		});
+		
+		for (var i=0; i<content.length; i++)
+				{
+					date=new Date(content[i].data.TIMESTAMP*1000);
+					longitude=content[i]['data']['LOCATION']['geojson']['coordinates'][1];
+					latitude=content[i]['data']['LOCATION']['geojson']['coordinates'][0];
+					point_new = new google.maps.LatLng(latitude,longitude);
+					marker = new google.maps.Marker({
+				            date:new Date(content[i].data.TIMESTAMP*1000),
+					    map:map,
+					    draggable:false,
+					    position: point_new,
+					    clickable: true
+					});
+					var contentString='<div id="note">'+
+							'<div id="Info">' +
+								'<p id=dateinfo>Date: '+ 
+								date.getFullYear() + '/' + 
+								(date.getMonth()+1) + '/' + 
+								date.getDate() + ' ' +
+								date.getHours() + ':' +
+								(date.getMinutes()+1) + ':' +
+								date.getSeconds() +
+								'</p>'+
+								'<p id=locationinfo>Location: '+ longitude + ', ' + latitude + '</p>'+
+							'</div>'+
+							'</div>';
+
+					marker.note = contentString;
+
+					google.maps.event.addListener(marker, 'mouseover', function() {
+						infowindow.content=this.note;
+						infowindow.open(map, this);
+   					});
+					listmarkers.push(marker)
+				}
+		callchart(content,listmarkers,map);
+	}
+
+
+	function callchart(flights,markers,map){
+	$('#totals').css('display','block');
+	$('#date-chart').css('display', 'block'); 
+	
+	  // Various formatters.
+	var formatNumber = d3.format(",d");
+	var indexes=new Array();
+
+	//There are no valid Timestamps in the dataset so we remove them
+	//First we find their indexes
+	for (var i=0;  i<flights.length; i++)
+		{
+			dia=flights[i].data.TIMESTAMP*1000
+			if (dia<1375308000000){
+				indexes.push(i)
+			}
+		}
+	//Second, we delete them from the dataset
+	for (var m=0; m<indexes.length; m++)
+		{
+			flights.splice(indexes[m]-m,1);
+		}	
+
+
+	flights.forEach(function(d, i) {
+			d.index = i;
+	    		d.date = new Date(d.data.TIMESTAMP*1000);		
+	  });
+
+	
+	  // A nest operator, for grouping the flight list.
+	  var nestByDate = d3.nest()
+	      .key(function(d) {return d.date; });
+	  
+
+	  // Create the crossfilter for the relevant dimensions and groups.
+	      var flight = crossfilter(flights),
+	      all = flight.groupAll(),
+		  hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
+      	      hours = hour.group(Math.floor),
+	      date = flight.dimension(function(d) { return d.date; }),
+	      dates = date.group(d3.time.day);
+	
+	// Create this variables for the chart domain and filter
+	firstdatedomain=new Date((date.top(flight.size())[flight.size()-1].data.TIMESTAMP)*1000)
+	lastdatedomain=new Date((date.top(1)[0].data.TIMESTAMP)*1000)
+
+	var margin = {top: 40, right: 40, bottom: 40, left:40},
+	    width = 900;
+
+	//If in the dataset of the request we only have date from one day, we show a 24hours chart  
+		if (dates.size()==1){
+			var charts = [
+			      barChart()
+				.dimension(hour)
+				.group(hours)
+			      .x(d3.scale.linear()
+				.domain([0, 24])
+				.rangeRound([0, 240]))
+				.filter([4,22])
+			  ];
+		}
+	//If we have more than one day data, we show a more than one day chart
+		else {
+			var charts = [
+				    barChart()
+					.dimension(date)
+					.group(dates)
+					.round(d3.time.day.round)
+				      .x(d3.time.scale()
+					.domain([firstdatedomain, d3.time.day.offset(lastdatedomain, 1)])
+					.rangeRound([0, width - margin.left - margin.right]))
+					.filter([firstdatedomain,lastdatedomain])
+				      
+			];
+		}
+	
+
+	  // Given our array of charts, which we assume are in the same order as the
+	  // .chart elements in the DOM, bind the charts to the DOM and render them.
+	  // We also listen to the chart's brush events to update the display.
+	  var chart = d3.selectAll(".chart")
+	      .data(charts)
+	      .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
+
+	  // Render the total.
+	  d3.selectAll("#total")
+	      .text(formatNumber(flight.size()));
+	
+	  renderAll();
+
+	  // Renders the specified chart or list.
+	  function render(method) {
+	    d3.select(this).call(method);
+	  }
+
+	  // Whenever the brush moves, re-rendering everything.
+	  function renderAll() {
+		a = new Date();
+		chart.each(render);
+	    	d3.select("#active").text(formatNumber(all.value()));
+		content=JSON.parse(JSON.stringify(date.top(Infinity)))
+		//console.log(JSON.stringify(date.top(Infinity)))
+	    	drawpoints(markers, content, map);
+		//console.log('renderAll: ' + (new Date().getTime() - a.getTime()) + ' ms');  
+	  }
+
+	  window.filter = function(filters) {
+	    filters.forEach(function(d, i) { charts[i].filter(d); });
+	    renderAll();
+	  };
+
+	  window.reset = function(i) {
+	    charts[i].filter(null);
+	    renderAll();
+	  };
+
+	  function barChart() {
+	    if (!barChart.id) barChart.id = 0;
+
+	    var margin = {top: 10, right: 10, bottom: 20, left: 10},
+		x,
+		y = d3.scale.linear().range([100, 0]),
+		id = barChart.id++,
+		axis = d3.svg.axis().orient("bottom"),
+		brush = d3.svg.brush(),
+		brushDirty,
+		dimension,
+		group,
+		round;
+
+	    function chart(div) {
+	      var width = x.range()[1],
+		  height = y.range()[0];
+
+	      y.domain([0, group.top(1)[0].value]);
+
+	      div.each(function() {
+		var div = d3.select(this),
+		    g = div.select("g");
+
+		// Create the skeletal chart.
+		if (g.empty()) {
+		  div.select(".title").append("a")
+		      .attr("href", "javascript:reset(" + id + ")")
+		      .attr("class", "reset")
+		      .text("reset")
+		      .style("display", "none");
+
+		  g = div.append("svg")
+		      .attr("width", width + margin.left + margin.right)
+		      .attr("height", height + margin.top + margin.bottom)
+		    .append("g")
+		      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		  g.append("clipPath")
+		      .attr("id", "clip-" + id)
+		    .append("rect")
+		      .attr("width", width)
+		      .attr("height", height);
+
+		  g.selectAll(".bar")
+		      .data(["background", "foreground"])
+		    .enter().append("path")
+		      .attr("class", function(d) { return d + " bar"; })
+		      .datum(group.all());
+
+		  g.selectAll(".foreground.bar")
+		      .attr("clip-path", "url(#clip-" + id + ")");
+
+		  g.append("g")
+		      .attr("class", "axis")
+		      .attr("transform", "translate(0," + height + ")")
+		      .call(axis);
+
+		  // Initialize the brush component with pretty resize handles.
+		  var gBrush = g.append("g").attr("class", "brush").call(brush);
+		  gBrush.selectAll("rect").attr("height", height);
+		  gBrush.selectAll(".resize").append("path").attr("d", resizePath);
+		}
+
+		// Only redraw the brush if set externally.
+		if (brushDirty) {
+		  brushDirty = false;
+		  g.selectAll(".brush").call(brush);
+		  div.select(".title a").style("display", brush.empty() ? "none" : null);
+		  if (brush.empty()) {
+		    g.selectAll("#clip-" + id + " rect")
+		        .attr("x", 0)
+		        .attr("width", width);
+		  } else {
+		    var extent = brush.extent();
+		    g.selectAll("#clip-" + id + " rect")
+		        .attr("x", x(extent[0]))
+		        .attr("width", x(extent[1]) - x(extent[0]));
+		  }
+		}
+
+		g.selectAll(".bar").attr("d", barPath);
+	      });
+
+	      function barPath(groups) {
+		var path = [],
+		    i = -1,
+		    n = groups.length,
+		    d;
+		while (++i < n) {
+		  d = groups[i];
+		  path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
+		}
+		return path.join("");
+	      }
+
+	      function resizePath(d) {
+		var e = +(d == "e"),
+		    x = e ? 1 : -1,
+		    y = height / 3;
+		return "M" + (.5 * x) + "," + y
+		    + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
+		    + "V" + (2 * y - 6)
+		    + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+		    + "Z"
+		    + "M" + (2.5 * x) + "," + (y + 8)
+		    + "V" + (2 * y - 8)
+		    + "M" + (4.5 * x) + "," + (y + 8)
+		    + "V" + (2 * y - 8);
+	      }
+	    }
+
+	    brush.on("brushstart.chart", function() {
+	      var div = d3.select(this.parentNode.parentNode.parentNode);
+	      div.select(".title a").style("display", null);
+	    });
+
+	    brush.on("brush.chart", function() {
+	      var g = d3.select(this.parentNode),
+		  extent = brush.extent();
+	      if (round) g.select(".brush")
+		  .call(brush.extent(extent = extent.map(round)))
+		.selectAll(".resize")
+		  .style("display", null);
+	      g.select("#clip-" + id + " rect")
+		  .attr("x", x(extent[0]))
+		  .attr("width", x(extent[1]) - x(extent[0]));
+	      dimension.filterRange(extent);
+	    });
+
+	    brush.on("brushend.chart", function() {
+	      if (brush.empty()) {
+		var div = d3.select(this.parentNode.parentNode.parentNode);
+		div.select(".title a").style("display", "none");
+		div.select("#clip-" + id + " rect").attr("x", null).attr("width", "100%");
+		dimension.filterAll();
+	      }
+	    });
+
+	    chart.margin = function(_) {
+	      if (!arguments.length) return margin;
+	      margin = _;
+	      return chart;
+	    };
+
+	    chart.x = function(_) {
+	      if (!arguments.length) return x;
+	      x = _;
+	      axis.scale(x);
+	      brush.x(x);
+	      return chart;
+	    };
+
+	    chart.y = function(_) {
+	      if (!arguments.length) return y;
+	      y = _;
+	      return chart;
+	    };
+
+	    chart.dimension = function(_) {
+	      if (!arguments.length) return dimension;
+	      dimension = _;
+	      return chart;
+	    };
+
+	    chart.filter = function(_) {
+	      if (_) {
+		brush.extent(_);
+		dimension.filterRange(_);
+	      } else {
+		brush.clear();
+		dimension.filterAll();
+	      }
+	      brushDirty = true;
+	      return chart;
+	    };
+
+	    chart.group = function(_) {
+	      if (!arguments.length) return group;
+	      group = _;
+	      return chart;
+	    };
+
+	    chart.round = function(_) {
+	      if (!arguments.length) return round;
+	      round = _;
+	      return chart;
+	    };
+
+	    return d3.rebind(chart, brush, "on");
+	  }		
+	}
+
+	//This function transform an input html text to plain text
+	function convertHtmlToText(inputText) {
+	    var returnText = "" + inputText;
+
+	    //-- remove BR tags and replace them with line break
+	    returnText=returnText.replace(/<br>/gi, "\n");
+	    returnText=returnText.replace(/<br\s\/>/gi, "\n");
+	    returnText=returnText.replace(/<br\/>/gi, "\n");
+
+	    //-- remove P and A tags but preserve what's inside of them
+	    returnText=returnText.replace(/<p.*>/gi, "\n");
+	    returnText=returnText.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, " $2 ($1)");
+
+	    //-- remove all inside SCRIPT and STYLE tags
+	    returnText=returnText.replace(/<script.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/script>/gi, "");
+	    returnText=returnText.replace(/<style.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/style>/gi, "");
+	    //-- remove all else
+	    returnText=returnText.replace(/<(?:.|\s)*?>/g, "");
+
+	    //-- get rid of more than 2 multiple line breaks:
+	    returnText=returnText.replace(/(?:(?:\r\n|\r|\n)\s*){2,}/gim, "\n\n");
+
+	    //-- get rid of more than 2 spaces:
+	    returnText = returnText.replace(/ +(?= )/g,'');
+
+	    //-- get rid of html-encoded characters:
+	    returnText=returnText.replace(/&nbsp;/gi," ");
+	    returnText=returnText.replace(/&amp;/gi,"&");
+	    returnText=returnText.replace(/&quot;/gi,'"');
+	    returnText=returnText.replace(/&lt;/gi,'<');
+	    returnText=returnText.replace(/&gt;/gi,'>');
+
+	    //-- return
+	    return returnText;
+	}
+	
+	function ChangeToMap(){
+		$('#changemap').css('display','none');
+		$('#changetext').css('display','block');
+		$('#results').css('display', 'none'); 
+		document.getElementById('date-chart').innerHTML = '';
+		if (typeof(globaldata)=='string'){ //if the data is a string means that comes from a prettyprint request
+				html=globaldata;
+				newtext=convertHtmlToText(html);
+				newtext=JSON.parse(newtext) //transform the Json string into Json object
+				callmap(newtext['results']);
+		}
+		else{
+			callmap(globaldata['results']);
+		}
+		$('#results_spinner').html(''); 
+	}
+
+function prettyPrint(obj){
+    var toString = Object.prototype.toString,
+        newLine = "<br>", space = "&nbsp;", tab = 8,
+        buffer = "",        
+        //Second argument is indent
+        indent = arguments[1] || 0,
+        //For better performance, Cache indentStr for a given indent.
+        indentStr = (function(n){
+            var str = "";
+            while(n--){
+                str += space;
+            }
+            return str;
+        })(indent); 
+ 
+    if(!obj || ( typeof obj != "object" && typeof obj!= "function" )){
+        //any non-object ( Boolean, String, Number), null, undefined, NaN
+        buffer += obj;
+    }else if(toString.call(obj) == "[object Date]"){
+        buffer += "[Date] " + obj;
+    }else if(toString.call(obj) == "[object RegExp"){
+        buffer += "[RegExp] " + obj;
+    }else if(toString.call(obj) == "[object Function]"){
+        buffer += "[Function] " + obj;
+    }else if(toString.call(obj) == "[object Array]"){
+        var idx = 0, len = obj.length;
+        buffer += "["+newLine;
+        while(idx < len){
+            buffer += [
+                indentStr, idx, ": ", 
+                prettyPrint(obj[idx], indent + tab)
+            ].join("");
+            buffer += "<br>";
+            idx++;
+        }
+        buffer += indentStr + "]";
+    }else { //Handle Object
+        var prop;
+        buffer += "{"+newLine;
+        for(prop in obj){
+            buffer += [
+                indentStr, prop, ": ", 
+                prettyPrint(obj[prop], indent + tab)
+            ].join("");
+            buffer += newLine;
+        }
+        buffer += indentStr + "}";
+    }
+ 
+    return buffer;
+}
+
+	function ChangeToText(){
+		$('#changetext').css('display','none');
+		$('#changemap').css('display','block');
+		$('#totals').css('display','none');
+		$('#date-chart').css('display', 'none');
+		$('#map-canvas').css('display', 'none'); 
+		$('#results').css('display', 'block'); 
+		if (document.getElementById('param_pretty').checked){
+			$('#results').html(prettyPrint(globaldata));
+		}
+		else{
+			$('#results').html(JSON.stringify(globaldata));
+		}		
+		$('#results_spinner').html(''); 
+	}
+
+	function nextdata(){
+			query_start = (new Date).getTime();
+			$("#query_took").html("crunching big numbers for you...")
+			if (typeof(globaldata)=='string'){ //if the data is a string means that comes from a prettyprint request
+				html=globaldata;
+				newtext=convertHtmlToText(html);
+				newtext=JSON.parse(newtext) //transform the Json string into Json object
+				if (newtext['meta']['paging']['links']==null){ //End of pages
+					$('#next').css('display','none');
+				}
+				else{	
+				nextpage=newtext['meta']['paging']['links'].next;
+				$.get(nextpage, function(data) {
+						globaldata=data;
+						$('#totals').css('display','none');
+						$('#date-chart').css('display', 'none');
+						$('#map-canvas').css('display', 'none'); 
+						$('#changetext').css('display','none');
+						$('#changemap').css('display','block');
+						$('#results').css('display', 'block'); 
+						$('#results').html(data);
+				});
+				}
+			}
+			else if (typeof(globaldata)=='object'){//if the data is an object means that the request is a map or plain text
+				if (globaldata['meta']['paging']['links']==null){//End of pages
+					$('#next').css('display','none');
+				}		
+				else{
+				nextpage=globaldata['meta']['paging']['links'].next;
+				$.get(nextpage, function(data) {
+						globaldata=data;
+						if (validate('visualization[]')=='1'){	//is a map
+							document.getElementById('date-chart').innerHTML = '';
+							//Chart
+							//callchart(data['results']);
+							//Map
+							$('#changemap').css('display','none');
+							$('#changetext').css('display','block');
+							$('#results').css('display', 'none'); 
+							callmap(data['results']);
+						}
+						else if (validate('visualization[]')=='-1'){ //is text		
+							$('#totals').css('display','none');
+							$('#date-chart').css('display', 'none');
+							$('#map-canvas').css('display', 'none'); 
+							$('#changetext').css('display','none');
+							$('#changemap').css('display','block');
+							$('#results').css('display', 'block'); 
+							$('#results').html(JSON.stringify(data));
+						}
+					});	
+				}	
+			}
+			$('#results_spinner').html(''); 
+			query_end = (new Date).getTime();
+			$("#query_took").html("took "+(query_end-query_start)+" ms")
+	}
 
 	function gotData(data, params) {
-
 		if (params['pretty'] == false)
-		{
+		{	
+			globaldata=data;
 			if (validate('visualization[]')=='-1')
 				{
-					data = JSON.stringify(data)
+					data = JSON.stringify(data);
+					$('#changetext').css('display','none');
+					$('#changemap').css('display','block');
+					$('#results').css('display', 'block'); 
 					$('#results').html(data); 
 					$('#results_spinner').html(''); 
 				}
 			else if (validate('visualization[]')=='1')
 				{
-					var map;
-					var marker;
-					var mapOptions = {
-					    zoom: 11,
-					    center: new google.maps.LatLng(55.763516,12.494943),
-					    mapTypeId: google.maps.MapTypeId.ROADMAP
-					  };
-					$('#map-canvas').css('display', 'block'); 
-					$('#results').css('display', 'none'); 
-					  map = new google.maps.Map(document.getElementById('map-canvas'),
-					      mapOptions);
-
-					content=data["results"]
-					for (var i=0; i<content.length; i++)
-					{
-						longitude=content[i]['data']['LOCATION']['geojson']['coordinates'][1];
-						latitude=content[i]['data']['LOCATION']['geojson']['coordinates'][0];
-						point_new = new google.maps.LatLng(latitude,longitude);
-						marker = new google.maps.Marker({
-						    map:map,
-						    draggable:false,
-						    position: point_new
-						  });
-					}	
+					$('#changemap').css('display','none');
+					$('#changetext').css('display','block');
+					document.getElementById('date-chart').innerHTML = '';
+					content=data["results"];
+					callmap(content);		
 				}
 		}
 		else
-			{
+			{	
+				globaldata=data;
+				$('#changetext').css('display','none');
+				$('#changemap').css('display','block');
+				$('#totals').css('display','none');
+				$('#date-chart').css('display', 'none');
 				$('#map-canvas').css('display', 'none'); 
 				$('#results').css('display', 'block'); 
-				$('#results').html(data); 
+				$('#results').html(data);
 			}
 
-	
+		$('#next').css('display','block');
 		$('#results_spinner').html(''); 
 		query_end = (new Date).getTime();
 		$("#query_took").html("took "+(query_end-query_start)+" ms")
@@ -129,15 +695,17 @@
 		}
 	}
 
-	function buildParams() {
-		console.log(document.getElementById('param_pretty').checked)
-		
+	function buildParams() {	
 		params = {}
 		
 		if (validate('visualization[]')=='-1' ) //Text visualization
-			{params['pretty'] = document.getElementById('param_pretty').checked}
+			{
+				 params['pretty'] = document.getElementById('param_pretty').checked
+			}
 		else if (validate('visualization[]')=='1' ) //Map visualization
-			{params['pretty'] = false}
+			{
+				params['pretty'] = false
+			}
 
 		params['decrypted'] = document.getElementById('decrypted').checked
 
@@ -171,6 +739,93 @@
 		height: 100%;
 		overflow: auto;
 	}
+
+#charts {
+  padding: 10px 0;
+}
+
+.chart {
+  display: inline-block;
+  height: 151px;
+  margin-bottom: 20px;}
+
+.reset {
+  padding-left: 1em;
+  font-size: smaller;
+  color: #ccc;
+}
+
+.background.bar {
+  fill: #ccc;
+}
+
+.foreground.bar {
+  fill: steelblue;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.brush rect.extent {
+  fill: steelblue;
+  fill-opacity: .125;
+}
+
+.brush .resize path {
+  fill: #eee;
+  stroke: #666;
+}
+
+#date-chart {
+  width: 920px;
+}
+
+
+#flight-list {
+  min-height: 1024px;
+}
+
+#flight-list .date,
+#flight-list .day {
+  margin-bottom: .4em;
+}
+
+#flight-list .flight {
+  line-height: 1.5em;
+  background: #eee;
+  width: 640px;
+  margin-bottom: 1px;
+}
+
+#flight-list .time {
+  color: #999;
+}
+
+#flight-list .flight div {
+  display: inline-block;
+  width: 100px;
+}
+
+#flight-list div.distance,
+#flight-list div.delay {
+  width: 160px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+#flight-list .early {
+  color: green;
+}
+
+
+
 </style>
 
 
@@ -289,11 +944,19 @@
 
 <div class="row">
 		<p><hr></p>	
-		<div class="span6"> 
-			<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());">Submit <i class="icon-chevron-right icon-white"></i></button>
+		<div class="span10"> 
+			<button class="btn btn-primary" type="button" onclick="submitQuery('location', buildParams());updateURL();">Submit <i class="icon-chevron-right icon-white"></i></button>
 			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
-			<button class="btn" type="button" onclick="$('#results').html(''); $('#map-canvas').html('')"><i class="icon-remove"></i> Clear</button>
+			<button class="btn" type="button" onclick="$('#results').html(''); $('#date-chart').css('display', 'none'); $('#map-canvas').css('display', 'none');"><i class="icon-remove"></i> Clear</button>
+			
 			<p><div id="query_took"></div></p>
+
+		<p><ul class="pager">
+				<li class="previous" id='next' style='display:none' onclick="nextdata();updateURL();"><a href="#">Next &rarr;</a></li>
+			<button class="btn btn-info" type="button" id="changemap" style="display: none" onclick="ChangeToMap();updateURL();">Get Map</button>
+			<button class="btn btn-info" type="button" id="changetext" style="display: none" onclick="ChangeToText();updateURL();">Get Text</button>
+		</ul></p>
+			<!--<button class="btn btn-info" type="button" id="next" style="display: none" onclick="nextdata();updateURL();"><i class="icon-step-forward icon-white"></i> Next page </button>	-->
 		</div>
 </div>
 
@@ -308,7 +971,22 @@
 <div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
 </div>
 
+<div id="totals" style="display: none"><span id="active">-</span> of <span id="total">-</span> points selected.</div>
+
+<div id="charts">
+	<div id="date-chart" class="chart" style="display: none;">
+	  <div class="span title">Date</div>
+	</div>
+</div>
+
+
 <div class= "span google-maps" id="map-canvas" style="height: 600px; display: none;">
+</div>
+
+
+
+<div id="lists">
+  <div id="flight-list" class="list" style="display: none;"></div>
 </div>
 
 <script>
