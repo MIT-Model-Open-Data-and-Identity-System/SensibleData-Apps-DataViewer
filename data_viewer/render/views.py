@@ -10,5 +10,8 @@ def home(request):
 		#return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 	return render_to_response('home.html', {}, context_instance=RequestContext(request))
 
+def about(request):
+		return render_to_response('about.html', {}, context_instance=RequestContext(request))
+ 
 def test(request):
 	return HttpResponse(request.user.username)
