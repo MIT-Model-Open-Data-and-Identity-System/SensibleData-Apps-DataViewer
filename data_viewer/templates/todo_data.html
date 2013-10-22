@@ -1,0 +1,615 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load staticfiles %}
+<script src="{% static "crossfilter.v1.min.js" %}"></script>
+<script src="{% static "d3.v3.min.js" %}"></script>
+
+{% if location %}
+	<script src="{% static "location.js" %}"></script>
+{% elif bluetooth %}
+	<script src="{% static "bluetooth.js" %}"></script>
+{% endif %}
+
+<script>
+var globaldata;
+
+	function submitQuery(params) {
+		query_start = (new Date).getTime();
+		$("#query_took").html("crunching big numbers for you...")
+
+		var opts = {
+			lines: 17, // The number of lines to draw
+			length: 0, // The length of each line
+			width: 10, // The line thickness
+			radius: 31, // The radius of the inner circle
+			corners: 1, // Corner roundness (0..1)
+			rotate: 0, // The rotation offset
+			direction: 1, // 1: clockwise, -1: counterclockwise
+			color: '#000', // #rgb or #rrggbb or array of colors
+			speed: 1, // Rounds per second
+			trail: 100, // Afterglow percentage
+			shadow: false, // Whether to render a shadow
+			hwaccel: true, // Whether to use hardware acceleration
+			className: 'spinner', // The CSS class to assign to the spinner
+			zIndex: 2e9, // The z-index (defaults to 2000000000)
+			top: 'auto', // Top position relative to parent in px
+			left: 'auto' // Left position relative to parent in px
+		};
+
+		
+		var target = document.getElementById('results_spinner');
+		var spinner = new Spinner(opts).spin(target);
+		
+		var jqxhr = $.get(
+		base_url+'/?bearer_token=' + used_token, params, 
+		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired or is not valid, we will try to refresh the window'); reload(); } else {alert('Something went wrong...'); $('#results_spinner').html('')}});
+
+	}
+
+	function updateURL() {
+		params_string = ''
+		var params = buildParams();
+		for (key in params) {
+			params_string += key+'='+params[key]+'&'
+		}
+
+		url = base_url +'/?bearer_token='+used_token + '&' + params_string
+		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
+		
+	}
+
+
+	function selectText(containerid) {
+		if (document.selection) {
+			var range = document.body.createTextRange();
+			range.moveToElementText(document.getElementById(containerid));
+			range.select();
+			} else if (window.getSelection) {
+			var range = document.createRange();
+			range.selectNode(document.getElementById(containerid));
+			window.getSelection().addRange(range);
+		}
+	}
+
+function ChangeToGraph(){
+		$('#changegraph').css('display','none');
+		$('#changetext').css('display','block');
+		$('#results').css('display', 'none'); 
+		$('#data_results').css('display', 'block');
+		
+		if (typeof(globaldata)=='string'){ //if the data is a string means that comes from a prettyprint request
+				html=globaldata;
+				newtext=convertHtmlToText(html);
+				newtext=JSON.parse(newtext) //transform the Json string into Json object
+				content=newtext['results'];
+		}
+		else{
+			content=globaldata['results'];			
+		}
+
+		visualization(content);
+
+		$('#results_spinner').html(''); 
+	}
+
+
+function prettyPrint(obj){
+    var toString = Object.prototype.toString,
+        newLine = "<br>", space = "&nbsp;", tab = 8,
+        buffer = "",        
+        //Second argument is indent
+        indent = arguments[1] || 0,
+        //For better performance, Cache indentStr for a given indent.
+        indentStr = (function(n){
+            var str = "";
+            while(n--){
+                str += space;
+            }
+            return str;
+        })(indent); 
+ 
+    if(!obj || ( typeof obj != "object" && typeof obj!= "function" )){
+        //any non-object ( Boolean, String, Number), null, undefined, NaN
+        buffer += obj;
+    }else if(toString.call(obj) == "[object Date]"){
+        buffer += "[Date] " + obj;
+    }else if(toString.call(obj) == "[object RegExp"){
+        buffer += "[RegExp] " + obj;
+    }else if(toString.call(obj) == "[object Function]"){
+        buffer += "[Function] " + obj;
+    }else if(toString.call(obj) == "[object Array]"){
+        var idx = 0, len = obj.length;
+        buffer += "["+newLine;
+        while(idx < len){
+            buffer += [
+                indentStr, idx, ": ", 
+                prettyPrint(obj[idx], indent + tab)
+            ].join("");
+            buffer += "<br>";
+            idx++;
+        }
+        buffer += indentStr + "]";
+    }else { //Handle Object
+        var prop;
+        buffer += "{"+newLine;
+        for(prop in obj){
+            buffer += [
+                indentStr, prop, ": ", 
+                prettyPrint(obj[prop], indent + tab)
+            ].join("");
+            buffer += newLine;
+        }
+        buffer += indentStr + "}";
+    }
+ 
+    return buffer;
+}
+	
+function ChangeToText(){
+		$('#changetext').css('display','none');
+		$('#changegraph').css('display','block');
+
+		$('#data_results').css('display', 'none');
+
+		$('#results').css('display', 'block');
+		$('#results').html(prettyPrint(globaldata));
+		$('#results_spinner').html(''); 
+}
+
+//This function transform an input html text to plain text
+function convertHtmlToText(inputText) {
+	    var returnText = "" + inputText;
+
+	    //-- remove BR tags and replace them with line break
+	    returnText=returnText.replace(/<br>/gi, "\n");
+	    returnText=returnText.replace(/<br\s\/>/gi, "\n");
+	    returnText=returnText.replace(/<br\/>/gi, "\n");
+
+	    //-- remove P and A tags but preserve what's inside of them
+	    returnText=returnText.replace(/<p.*>/gi, "\n");
+	    returnText=returnText.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, " $2 ($1)");
+
+	    //-- remove all inside SCRIPT and STYLE tags
+	    returnText=returnText.replace(/<script.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/script>/gi, "");
+	    returnText=returnText.replace(/<style.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/style>/gi, "");
+	    //-- remove all else
+	    returnText=returnText.replace(/<(?:.|\s)*?>/g, "");
+
+	    //-- get rid of more than 2 multiple line breaks:
+	    returnText=returnText.replace(/(?:(?:\r\n|\r|\n)\s*){2,}/gim, "\n\n");
+
+	    //-- get rid of more than 2 spaces:
+	    returnText = returnText.replace(/ +(?= )/g,'');
+
+	    //-- get rid of html-encoded characters:
+	    returnText=returnText.replace(/&nbsp;/gi," ");
+	    returnText=returnText.replace(/&amp;/gi,"&");
+	    returnText=returnText.replace(/&quot;/gi,'"');
+	    returnText=returnText.replace(/&lt;/gi,'<');
+	    returnText=returnText.replace(/&gt;/gi,'>');
+
+	    //-- return
+	    return returnText;
+	}
+
+function convertCSVtoString(inputcsv){
+	var returnText
+	index=inputcsv.indexOf('#}')
+	
+	returnText=inputcsv.substring(0,index+2)
+	returnText=returnText.replace(/#/g,"");
+	
+	return returnText
+}
+
+function nextdata()
+	{
+			query_start = (new Date).getTime();
+			$("#query_took").html("crunching big numbers for you...")
+			if (typeof(globaldata)=='string'){ //if the data is a string means that comes from a prettyjson request
+				
+				if (params['format'] == 'pretty')
+				{
+					html=globaldata;
+					newtext=convertHtmlToText(html);
+					newtext=JSON.parse(newtext) //transform the Json string into Json object
+					if (newtext['meta']['paging']['links']==null){ //End of pages
+						$('#next').css('display','none');
+					}
+					else{	
+					nextpage=newtext['meta']['paging']['links'].next;
+					$.get(nextpage, function(data) {
+								globaldata=data;
+								$('#changetext').css('display','none');
+								$('#changegraph').css('display','block');
+								$('#data_results').css('display', 'none');
+								$('#results').css('display', 'block'); 
+								$('#results').html(data);
+								$('#results_spinner').html(''); 
+								query_end = (new Date).getTime();
+								$("#query_took").html("took "+(query_end-query_start)+" ms")
+							});
+					}
+				}
+				else if (params['format'] == 'csv')
+				{
+					$('#changetext').css('display','none');
+					$('#changegraph').css('display','block');
+					$('#data_results').css('display', 'none');
+					$('#results').css('display', 'block'); 
+					newtext=convertCSVtoString(globaldata); 
+					newtext=JSON.parse(newtext) //transform the Json string into Json object
+					if (newtext['paging']['links']==null){ //End of pages
+						$('#next').css('display','none');
+					}
+					else{	
+					nextpage=newtext['paging']['links'].next;
+					$.get(nextpage, function(data) {
+							globaldata=data;
+							$('#changetext').css('display','none');
+							$('#changegraph').css('display','block');
+							$('#data_results').css('display', 'none');
+							$('#results').css('display', 'block'); 
+							$('#results').html('<pre>'+data+'</pre>');
+							$('#results_spinner').html(''); 
+							query_end = (new Date).getTime();
+							$("#query_took").html("took "+(query_end-query_start)+" ms")
+						});
+					}
+					
+				}
+			}
+			
+			else if (typeof(globaldata)=='object'){//if the data is an object means that the request is a graph or json
+				if (globaldata['meta']['paging']['links']==null){//End of pages
+					$('#next').css('display','none');
+				}		
+				else{
+				nextpage=globaldata['meta']['paging']['links'].next;
+				$.get(nextpage, function(data) {
+						globaldata=data;
+						if (validate('visualization[]')=='1'){	//is a graph
+							
+							$('#changegraph').css('display','none');
+							$('#changetext').css('display','block');
+							$('#results').css('display', 'none'); 
+							$('#data_results').css('display', 'block');
+							content=data["results"];
+						 	
+							visualization(content);
+
+							$('#results_spinner').html(''); 
+							query_end = (new Date).getTime();
+							$("#query_took").html("took "+(query_end-query_start)+" ms")
+						}
+						else if (validate('visualization[]')=='0'){ //is text json
+							console.log('json raw')	
+							$('#changetext').css('display','none');
+							$('#changegraph').css('display','block');
+							$('#data_results').css('display', 'none');
+							$('#results').css('display', 'block'); 
+							$('#results').html(JSON.stringify(data));
+							$('#results_spinner').html(''); 
+							query_end = (new Date).getTime();
+							$("#query_took").html("took "+(query_end-query_start)+" ms")
+						}
+					});	
+				}	
+			}
+			
+	}
+
+	function gotData(data, params) {
+			globaldata=data;
+			if (validate('visualization[]')=='0')
+			{
+				$('#changetext').css('display','none');
+				$('#changegraph').css('display','block');
+				$('#data_results').css('display', 'none');
+				$('#results').css('display', 'block'); 
+				if (params['format'] == 'json')
+				{
+					data = JSON.stringify(data);
+					$('#results').html(data); 
+				}
+				else if (params['format'] == 'pretty')
+				{
+					$('#results').html(data);
+				}
+				else if (params['format'] == 'csv')
+				{
+					$('#results').html('<pre>'+data+'</pre>'); 
+				}
+			}
+			else if (validate('visualization[]')=='1')
+				{	
+					$('#results').css('display', 'none'); 
+					$('#changegraph').css('display','none');
+					$('#changetext').css('display','block');
+					$('#data_results').css('display', 'block');
+					content=data["results"];
+					visualization(content);
+				}
+
+		$('#next').css('display','block');
+		$('#results_spinner').html(''); 
+		query_end = (new Date).getTime();
+		$("#query_took").html("took "+(query_end-query_start)+" ms")
+
+	}
+
+	function validate(name){
+		var chks = document.getElementsByName(name);
+		for (var i = 0; i < chks.length; i++)
+		{
+			if (chks[i].checked)
+			{
+				return chks[i].value
+				break;
+			}
+		}
+	}
+
+	function buildParams() {	
+		params = {}
+		
+		if (validate('visualization[]')=='0' ) //Text visualization	
+		{
+			if (document.getElementById('jsonpretty').checked) {params['format'] = 'pretty'}
+			else if (document.getElementById('jsonformat').checked) {params['format'] = 'json'}
+			else if (document.getElementById('csv').checked) {params['format'] = 'csv'}
+		}
+		else if (validate('visualization[]')=='1' ) //Graph visualization
+			{
+				params['format'] = 'json'
+			}
+
+		params['decrypted'] = document.getElementById('decrypted').checked
+
+		if (document.getElementById('fields').value !='')
+			{params['fields'] = document.getElementById('fields').value}
+
+		if (document.getElementById('sortby').value !='')
+			{params['sortby'] = document.getElementById('sortby').value}
+
+		params['order'] = validate('order[]')
+		
+		if (document.getElementById('start_date').value !='')
+			{params['start_date'] = document.getElementById('start_date').value}
+			
+		if (document.getElementById('end_date').value !='')
+			{params['end_date'] = document.getElementById('end_date').value}
+
+		if (document.getElementById('limit').value !='')
+			{params['limit'] = parseInt(document.getElementById('limit').value)}
+		
+	if (document.getElementById('not_for_user_users').value !='')
+			{params['users'] = document.getElementById('not_for_user_users').value}
+		
+		return params;
+	}
+
+</script>
+
+{% if location %}
+	<link rel='stylesheet' type="text/css" href='{% static "location.css" %}'></link>
+{% elif bluetooth %}
+	<link rel='stylesheet' type="text/css" href='{% static "bluetooth.css" %}'></link>
+{% endif %}
+
+<style type="text/css">
+	.scrollable {
+		height: 100%;
+		overflow: auto;
+	}
+
+</style>
+
+<div class="page-header">
+	{% if location %}
+		<h3>Location</h3>
+	{% elif bluetooth %}
+		<h3>Bluetooth</h3>
+	{% elif calllog %}
+		<h3>Call Log</h3>
+	{% elif sms %}
+		<h3>SMS</h3>
+	{% elif wifi %}
+		<h3>Wifi</h3>
+	{% elif likes %}
+		<h3>Facebook Likes</h3>
+	{% elif friends %}
+		<h3>Facebook Friends</h3>
+	{% elif friendlists %}
+		<h3>Facebook Friend Lists</h3>
+	{% elif birthday %}
+		<h3>Facebook Birthday</h3>
+	{% elif education %}
+		<h3>Facebook Education</h3>	
+	{% elif groups %}
+		<h3>Facebook Groups</h3>
+	{% elif hometown %}
+		<h3>Facebook Hometown</h3>
+	{% elif interests %}
+		<h3>Facebook Interests</h3>
+	{% elif locationfacebook %}
+		<h3>Facebook Location</h3>
+	{% elif political %}
+		<h3>Facebook Political</h3>
+	{% elif religion %}
+		<h3>Facebook Religion</h3>
+	{% elif work %}
+		<h3>Facebook Work</h3>
+	{% endif %}	
+	<div style="word-wrap: break-word;" id="div_url"></div>
+</div>
+
+<div class="row">
+<form id="params_form" onchange="updateURL();" onclick="updateURL();">
+<p>
+		<!--<div class="span5">
+			<p class="lead"><input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting</input></p>
+		</div>-->
+
+<div class="span5" id="not_for_researcher_decrypted"> 
+	<p class="lead"><input type="checkbox" id="decrypted" value="Decrypted"> Decrypted </input></p>
+</div>
+
+	
+<div class="span12">
+	<label>Sort by</label>
+		<p class="lead">
+				<input type="text" id='sortby' placeholder="Field you want to sort by"/>
+				<input type="radio" name="order[]" id="descending" value="-1"> Descending </input>
+				<input type="radio" name="order[]" id="ascending" value="1" checked> Ascending </input>
+		</p>
+</div>
+	
+
+<div class="span12"> 
+	<label>Fields to return</label>
+		<div class="input-append">
+				<div class="dropdown">
+					<textarea rows="3" id='fields' placeholder="Enter the fields separeted with ','"></textarea>
+
+					<button class="btn btn-primary" type="button" id="fields_picker" onclick="{ if ($('#example').css('display') == 'block') $('#example').css('display', 'none'); else  $('#example').css('display', 'block'); updateURL(); }"><i class="icon-align-left icon-white"></i></button>
+					<button class="btn" type="button" id="fields_clear" onclick="{ $('#fields')[0].value = ''; updateURL();}"><i class="icon-remove"></i></button>
+
+
+					<div id="example" class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="position: relative">
+						<pre style="word-wrap: break-word; white-space: pre-wrap; font-family:monospace; display: block; margin: 1em 0px">
+<small>
+{{ example_doc | safe }}
+</small>
+						</pre>
+					</div>
+
+
+			</div>
+	</div>
+</div> 
+
+<div class="span5"> 
+	<label>Start Date</label>
+	<div class="input-append">
+		<input class="span" type="number" id="start_date" value="" placeholder="epoch timestamp"></input>
+		<button class="btn btn-primary" type="button" id="start_date_picker"><i class="icon-calendar icon-white"></i></button>
+	</div>
+
+	<script type="text/javascript">
+		$('#start_date_picker').datepicker()
+			.on('changeDate', function(e){
+			var y = e.date.getTime()/1000
+			$('#start_date')[0].value=y;
+			updateURL();
+		});
+	</script>
+</div>
+	
+
+<div class="span5"> 
+	<label>End Date</label>
+	<div class="input-append">
+		<input class="span" type="number" id="end_date" value="" placeholder="epoch timestamp"></input>
+		<button class="btn btn-primary" type="button" id="end_date_picker"><i class="icon-calendar icon-white"></i></button>
+	</div>
+
+	<script type="text/javascript">
+		$('#end_date_picker').datepicker()
+			.on('changeDate', function(e){
+			var y = e.date.getTime()/1000
+			$('#end_date')[0].value=y;
+			updateURL();
+		});
+	</script>
+</div>
+
+<div class="span5"> 
+	{% if friends %}
+		<label>No. of documents (max. 10)</label>
+		<input type="number" id='limit' max=10 min=0 value=10 placeholder="No. of documents"></input>
+	{% else %}
+		<label>No. of documents (max. 1000)</label>
+		<input type="number" id='limit' max=1000 min=0 value=1000 placeholder="No. of documents"></input>
+	{% endif %}
+</div>
+
+<div class="span5" id="not_for_user_users_div"> 
+	<label>Users</label>
+			<textarea rows="3" id='not_for_user_users' placeholder="Comma separated list of users"></textarea>
+</div> 
+
+
+	
+<div class="span8">
+	<label>Visualization</label>
+		<p class="lead">
+				<input type="radio" name="visualization[]" id="jsonpretty" value="0" checked> Json Pretty </input>
+				<input type="radio" name="visualization[]" id="jsonformat" value="0"> Json Format </input>
+				<input type="radio" name="visualization[]" id="csv" value="0"> CSV format </input>
+				{% if location %}
+					<input type="radio" name="visualization[]" id="graph" value="1" > Map </input>
+				{% elif bluetooth%}
+					<input type="radio" name="visualization[]" id="graph" value="1" > Graph </input>
+				{% endif %}
+		</p>
+
+</div>
+
+</p>
+</form>
+</div>
+
+<div class="row">
+		<p><hr></p>	
+		<div class="span10"> 
+			<button class="btn btn-primary" type="button" onclick="submitQuery(buildParams());updateURL();">Submit <i class="icon-chevron-right icon-white"></i></button>
+			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
+			<button class="btn" type="button" onclick="$('#results').html(''); $('#data_results').css('display', 'none'); "><i class="icon-remove"></i> Clear</button>
+			
+			<p><div id="query_took"></div></p>
+
+		<p><ul class="pager">
+				<li class="previous" id='next' style='display:none' onclick="nextdata();updateURL();"><a href="#">Next &rarr;</a></li>
+			{% if location or bluetooth %}
+				<button class="btn btn-info" type="button" id="changegraph" style="display: none" onclick="ChangeToGraph();updateURL();">Get Graph</button>
+				<button class="btn btn-info" type="button" id="changetext" style="display: none" onclick="ChangeToText();updateURL();">Get Text</button>
+			{% endif %}
+		</ul></p>
+		</div>
+</div>
+
+	<div id="results_spinner"></div>
+{% endblock %}
+
+{% block results %}
+
+<p></hr></p>
+
+<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px"></div>
+<div id='data_results' style="display: none">
+{% if location %}
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.14&sensor=false"></script>
+	<div id="totals" style="display: none"><span id="active">-</span> of <span id="total">-</span> points selected.</div>
+
+	<div id="charts">
+		<div id="date-chart" class="chart" style="display: none;">
+		  <div class="span title">Date</div>
+		</div>
+	</div>
+
+	<div class= "span google-maps" id="map-canvas" style="height: 600px; display: none;"></div>
+{% elif bluetooth %}
+	<div id="totals" style="display: none"><span id="active">-</span> of <span id="total">-</span> devices displayed.</div>
+	<div id="totallinks" style="display: none"><span id="links">-</span> links displayed.</div>
+
+	<div id="network" style="display: none; "> </div>
+{% endif %}
+</div>
+<script>
+	updateURL()
+</script>
+
+{% endblock %}
