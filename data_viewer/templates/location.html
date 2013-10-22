@@ -788,44 +788,6 @@ function prettyPrint(obj){
 }
 
 
-#flight-list {
-  min-height: 1024px;
-}
-
-#flight-list .date,
-#flight-list .day {
-  margin-bottom: .4em;
-}
-
-#flight-list .flight {
-  line-height: 1.5em;
-  background: #eee;
-  width: 640px;
-  margin-bottom: 1px;
-}
-
-#flight-list .time {
-  color: #999;
-}
-
-#flight-list .flight div {
-  display: inline-block;
-  width: 100px;
-}
-
-#flight-list div.distance,
-#flight-list div.delay {
-  width: 160px;
-  padding-right: 10px;
-  text-align: right;
-}
-
-#flight-list .early {
-  color: green;
-}
-
-
-
 </style>
 
 
@@ -956,7 +918,6 @@ function prettyPrint(obj){
 			<button class="btn btn-info" type="button" id="changemap" style="display: none" onclick="ChangeToMap();updateURL();">Get Map</button>
 			<button class="btn btn-info" type="button" id="changetext" style="display: none" onclick="ChangeToText();updateURL();">Get Text</button>
 		</ul></p>
-			<!--<button class="btn btn-info" type="button" id="next" style="display: none" onclick="nextdata();updateURL();"><i class="icon-step-forward icon-white"></i> Next page </button>	-->
 		</div>
 </div>
 
@@ -968,8 +929,7 @@ function prettyPrint(obj){
 <p></hr></p>
 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.14&sensor=false"></script>
-<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px">
-</div>
+<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px"></div>
 
 <div id="totals" style="display: none"><span id="active">-</span> of <span id="total">-</span> points selected.</div>
 
@@ -979,15 +939,7 @@ function prettyPrint(obj){
 	</div>
 </div>
 
-
-<div class= "span google-maps" id="map-canvas" style="height: 600px; display: none;">
-</div>
-
-
-
-<div id="lists">
-  <div id="flight-list" class="list" style="display: none;"></div>
-</div>
+<div class= "span google-maps" id="map-canvas" style="height: 600px; display: none;"></div>
 
 <script>
 	updateURL()
