@@ -2,14 +2,15 @@
 
 {% block content %}
 
+{% load staticfiles %}
+<script src="{% static "d3.v3.min.js" %}"></script>
+<script src="{% static "histogram.js" %}"></script>
+<script src="{% static "d3.tip.min.js" %}"></script>
+ 
 <script>
 var globaldata;
-
-	function submitQuery(params) {
-		query_start = (new Date).getTime();
-		$("#query_took").html("crunching big numbers for you...")
-
-		var opts = {
+var histogram;
+var opts = {
 			lines: 17, // The number of lines to draw
 			length: 0, // The length of each line
 			width: 10, // The line thickness
@@ -28,6 +29,9 @@ var globaldata;
 			left: 'auto' // Left position relative to parent in px
 		};
 
+	function submitQuery(params) {
+		query_start = (new Date).getTime();
+		$("#query_took").html("crunching big numbers for you...")
 		
 		var target = document.getElementById('results_spinner');
 		var spinner = new Spinner(opts).spin(target);
@@ -112,7 +116,9 @@ function convertCSVtoString(inputcsv){
 	function nextdata()
 	{
 			query_start = (new Date).getTime();
-			$("#query_took").html("crunching big numbers for you...")
+			var target = document.getElementById('results_spinner');
+			var spinner = new Spinner(opts).spin(target);
+
 			if (typeof(globaldata)=='string'){ //if the data is a string means that comes from a prettyjson request
 				
 				if (params['format'] == 'pretty')
@@ -122,8 +128,11 @@ function convertCSVtoString(inputcsv){
 					newtext=JSON.parse(newtext) //transform the Json string into Json object
 					if (newtext['meta']['paging']['links']==null){ //End of pages
 						$('#next').css('display','none');
+						$("#query_took").html("There are no more results")
 					}
 					else{	
+					$("#query_took").html("crunching big numbers for you...")
+					$('#results').html('');
 					nextpage=newtext['meta']['paging']['links'].next;
 					$.get(nextpage, function(data) {
 							globaldata=data;
@@ -148,8 +157,11 @@ function convertCSVtoString(inputcsv){
 					newtext=JSON.parse(newtext) //transform the Json string into Json object
 					if (newtext['paging']['links']==null){ //End of pages
 						$('#next').css('display','none');
+						$("#query_took").html("There are no more results")
 					}
 					else{	
+					$("#query_took").html("crunching big numbers for you...")
+					$('#results').html('');
 					nextpage=newtext['paging']['links'].next;
 					$.get(nextpage, function(data) {
 							globaldata=data;
@@ -167,11 +179,14 @@ function convertCSVtoString(inputcsv){
 				}
 			}
 			
-			else if (typeof(globaldata)=='object'){//if the data is an object means that the request is a graph or json
+			else if (typeof(globaldata)=='object'){//if the data is an object means that the request is json format
 				if (globaldata['meta']['paging']['links']==null){//End of pages
 					$('#next').css('display','none');
+						$("#query_took").html("There are no more results")
 				}		
 				else{
+				$("#query_took").html("crunching big numbers for you...")
+				$('#results').html('');
 				nextpage=globaldata['meta']['paging']['links'].next;
 				$.get(nextpage, function(data) {
 						globaldata=data;
@@ -188,8 +203,7 @@ function convertCSVtoString(inputcsv){
 						}
 					});	
 				}	
-			}
-			
+			}			
 	}
 
 
@@ -198,16 +212,31 @@ function convertCSVtoString(inputcsv){
 		$('#results').css('display', 'block'); 
 		if (params['format'] == 'json')
 			{
+				if (histogram==1){
+					visualization(globaldata['results'])
+				}
 				data = JSON.stringify(data);
 				$('#results').html(data); 
 			}
 		else if (params['format'] == 'pretty')
 			{
+				if (histogram==1){
+					html=globaldata;
+					newtext=convertHtmlToText(html);
+					newtext=JSON.parse(newtext)
+					visualization(newtext['results'])
+				}
 				$('#results').html(data);
+				
 			}
 		else if (params['format'] == 'csv')
 			{
 				$('#results').html('<pre>'+data+'</pre>'); 
+				if (histogram==1){
+					newtext=convertCSVtoString(globaldata); 
+					newtext=JSON.parse(newtext) 
+					visualization(newtext['results'])
+				}
 			}
 
 		$('#next').css('display','block');
@@ -251,7 +280,12 @@ function convertCSVtoString(inputcsv){
 			{params['fields'] = document.getElementById('fields').value}
 
 		if (document.getElementById('questions').value !='')
-			{params['questions'] = document.getElementById('questions').value}
+			{
+				histogram=0;
+				params['questions'] = document.getElementById('questions').value
+				numquestions=params['questions'].split(',')
+				if (numquestions.length==2){histogram=1;}
+			}
 
 		if (document.getElementById('sortby').value !='')
 			{params['sortby'] = document.getElementById('sortby').value}
@@ -275,6 +309,8 @@ function convertCSVtoString(inputcsv){
 	}
 
 </script>
+<meta charset="utf-8">
+<link rel='stylesheet' type="text/css" href='{% static "histogram.css" %}'></link>
 
 <style type="text/css">
 	.scrollable {
@@ -430,7 +466,7 @@ function convertCSVtoString(inputcsv){
 		</div>
 </div>
 
-	<div id="results_spinner"></div>
+<div id="results_spinner"></div>
 {% endblock %}
 
 {% block results %}
@@ -438,6 +474,8 @@ function convertCSVtoString(inputcsv){
 <p></hr></p>
 
 <div id='results' class="pre-scrollable" style="height: auto; max-height: 600px"></div>
+
+<div id="histogram" style="display: none; "> </div>
 
 <script>
 	updateURL()
