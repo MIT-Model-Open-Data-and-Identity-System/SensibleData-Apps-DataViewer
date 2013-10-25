@@ -5,11 +5,13 @@
 {% load staticfiles %}
 <script src="{% static "d3.v3.min.js" %}"></script>
 <script src="{% static "histogram.js" %}"></script>
+<script src="{% static "scatterplot.js" %}"></script>
 <script src="{% static "d3.tip.min.js" %}"></script>
  
 <script>
 var globaldata;
-var histogram;
+var graph;
+var numquestions;
 var opts = {
 			lines: 17, // The number of lines to draw
 			length: 0, // The length of each line
@@ -115,6 +117,9 @@ function convertCSVtoString(inputcsv){
 
 	function nextdata()
 	{
+			
+		document.getElementById('scatterplot').innerHTML = '';
+		document.getElementById('histogram').innerHTML = '';
 			query_start = (new Date).getTime();
 			var target = document.getElementById('results_spinner');
 			var spinner = new Spinner(opts).spin(target);
@@ -126,13 +131,14 @@ function convertCSVtoString(inputcsv){
 					html=globaldata;
 					newtext=convertHtmlToText(html);
 					newtext=JSON.parse(newtext) //transform the Json string into Json object
+					$('#results').html('');
 					if (newtext['meta']['paging']['links']==null){ //End of pages
 						$('#next').css('display','none');
 						$("#query_took").html("There are no more results")
+						$('#results_spinner').html(''); 
 					}
 					else{	
 					$("#query_took").html("crunching big numbers for you...")
-					$('#results').html('');
 					nextpage=newtext['meta']['paging']['links'].next;
 					$.get(nextpage, function(data) {
 							globaldata=data;
@@ -142,6 +148,15 @@ function convertCSVtoString(inputcsv){
 							$('#results').css('display', 'block'); 
 							$('#results').html(data);
 							$('#results_spinner').html(''); 
+							html=globaldata;
+							newtext=convertHtmlToText(html);
+							newtext=JSON.parse(newtext)
+							if (graph==1){
+								visualization(newtext['results'])
+							}
+							else if (graph==2){
+								plot(newtext['results'],numquestions)
+							}
 							query_end = (new Date).getTime();
 							$("#query_took").html("took "+(query_end-query_start)+" ms")
 						});
@@ -155,13 +170,14 @@ function convertCSVtoString(inputcsv){
 					$('#results').css('display', 'block'); 
 					newtext=convertCSVtoString(globaldata); 
 					newtext=JSON.parse(newtext) //transform the Json string into Json object
+					$('#results').html('');
 					if (newtext['paging']['links']==null){ //End of pages
 						$('#next').css('display','none');
 						$("#query_took").html("There are no more results")
+						$('#results_spinner').html(''); 
 					}
 					else{	
 					$("#query_took").html("crunching big numbers for you...")
-					$('#results').html('');
 					nextpage=newtext['paging']['links'].next;
 					$.get(nextpage, function(data) {
 							globaldata=data;
@@ -171,6 +187,9 @@ function convertCSVtoString(inputcsv){
 							$('#results').css('display', 'block'); 
 							$('#results').html('<pre>'+data+'</pre>');
 							$('#results_spinner').html(''); 
+							if (graph==1){
+							//	visualization(globaldata['results'])
+							}
 							query_end = (new Date).getTime();
 							$("#query_took").html("took "+(query_end-query_start)+" ms")
 						});
@@ -180,24 +199,30 @@ function convertCSVtoString(inputcsv){
 			}
 			
 			else if (typeof(globaldata)=='object'){//if the data is an object means that the request is json format
+				$('#results').html('');
 				if (globaldata['meta']['paging']['links']==null){//End of pages
 					$('#next').css('display','none');
-						$("#query_took").html("There are no more results")
+					$("#query_took").html("There are no more results")
+					$('#results_spinner').html(''); 
 				}		
 				else{
 				$("#query_took").html("crunching big numbers for you...")
-				$('#results').html('');
 				nextpage=globaldata['meta']['paging']['links'].next;
 				$.get(nextpage, function(data) {
 						globaldata=data;
 						if (params['format'] == 'json'){ //is text json
-							console.log('json raw')	
 							$('#changetext').css('display','none');
 							$('#changegraph').css('display','block');
 							$('#data_results').css('display', 'none');
 							$('#results').css('display', 'block'); 
 							$('#results').html(JSON.stringify(data));
 							$('#results_spinner').html(''); 
+							if (graph==1){
+								visualization(globaldata['results'])
+							}
+							else if (graph==2){
+								plot(globaldata['results'],numquestions)
+							}
 							query_end = (new Date).getTime();
 							$("#query_took").html("took "+(query_end-query_start)+" ms")
 						}
@@ -209,22 +234,33 @@ function convertCSVtoString(inputcsv){
 
 	function gotData(data, params) {
 		globaldata=data;
+		document.getElementById('scatterplot').innerHTML = '';
+		document.getElementById('histogram').innerHTML = '';
 		$('#results').css('display', 'block'); 
 		if (params['format'] == 'json')
 			{
-				if (histogram==1){
+				if (graph==1){
 					visualization(globaldata['results'])
+				}
+				else if (graph==2){
+					plot(globaldata['results'],numquestions)
 				}
 				data = JSON.stringify(data);
 				$('#results').html(data); 
 			}
 		else if (params['format'] == 'pretty')
 			{
-				if (histogram==1){
+				if (graph==1){
 					html=globaldata;
 					newtext=convertHtmlToText(html);
 					newtext=JSON.parse(newtext)
 					visualization(newtext['results'])
+				}
+				else if (graph==2){
+					html=globaldata;
+					newtext=convertHtmlToText(html);
+					newtext=JSON.parse(newtext)
+					plot(newtext['results'],numquestions)
 				}
 				$('#results').html(data);
 				
@@ -232,10 +268,15 @@ function convertCSVtoString(inputcsv){
 		else if (params['format'] == 'csv')
 			{
 				$('#results').html('<pre>'+data+'</pre>'); 
-				if (histogram==1){
-					newtext=convertCSVtoString(globaldata); 
-					newtext=JSON.parse(newtext) 
-					visualization(newtext['results'])
+				if (graph==1){
+					//newtext=convertCSVtoString(globaldata); 
+					//newtext=JSON.parse(newtext) 
+					//visualization(newtext['results'])
+				}
+				else if (graph==2){
+					//newtext=convertCSVtoString(globaldata); 
+					//newtext=JSON.parse(newtext) 
+					//plot(newtext['results'],numquestions)
 				}
 			}
 
@@ -281,10 +322,12 @@ function convertCSVtoString(inputcsv){
 
 		if (document.getElementById('questions').value !='')
 			{
-				histogram=0;
+				numquestions=[]
+				graph=0;
 				params['questions'] = document.getElementById('questions').value
 				numquestions=params['questions'].split(',')
-				if (numquestions.length==2){histogram=1;}
+				if (numquestions.length==2){graph=1;}
+				else if (numquestions.length==3){graph=2;}
 			}
 
 		if (document.getElementById('sortby').value !='')
@@ -311,6 +354,7 @@ function convertCSVtoString(inputcsv){
 </script>
 <meta charset="utf-8">
 <link rel='stylesheet' type="text/css" href='{% static "histogram.css" %}'></link>
+<link rel='stylesheet' type="text/css" href='{% static "scatterplot.css" %}'></link>
 
 <style type="text/css">
 	.scrollable {
@@ -473,9 +517,10 @@ function convertCSVtoString(inputcsv){
 
 <p></hr></p>
 
-<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px"></div>
-
 <div id="histogram" style="display: none; "> </div>
+<div id="scatterplot" style="display: none; "> </div>
+
+<div id='results' class="pre-scrollable" style="height: auto; max-height: 600px"></div>
 
 <script>
 	updateURL()
