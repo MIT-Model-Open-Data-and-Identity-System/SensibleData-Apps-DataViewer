@@ -6,7 +6,6 @@
 <script src="{% static "d3.v3.min.js" %}"></script>
 <script src="{% static "histogram.js" %}"></script>
 <script src="{% static "scatterplot.js" %}"></script>
-<script src="{% static "d3.tip.min.js" %}"></script>
  
 <script>
 var globaldata;
@@ -187,9 +186,6 @@ function convertCSVtoString(inputcsv){
 							$('#results').css('display', 'block'); 
 							$('#results').html('<pre>'+data+'</pre>');
 							$('#results_spinner').html(''); 
-							if (graph==1){
-							//	visualization(globaldata['results'])
-							}
 							query_end = (new Date).getTime();
 							$("#query_took").html("took "+(query_end-query_start)+" ms")
 						});
@@ -268,16 +264,6 @@ function convertCSVtoString(inputcsv){
 		else if (params['format'] == 'csv')
 			{
 				$('#results').html('<pre>'+data+'</pre>'); 
-				if (graph==1){
-					//newtext=convertCSVtoString(globaldata); 
-					//newtext=JSON.parse(newtext) 
-					//visualization(newtext['results'])
-				}
-				else if (graph==2){
-					//newtext=convertCSVtoString(globaldata); 
-					//newtext=JSON.parse(newtext) 
-					//plot(newtext['results'],numquestions)
-				}
 			}
 
 		$('#next').css('display','block');
@@ -375,7 +361,8 @@ function convertCSVtoString(inputcsv){
 <form id="params_form" onchange="updateURL();" onclick="updateURL();">
 <p>
 
-<div class="span12">
+
+<div class="span12" id="decryptedfield">
 		<p class="lead">
 				<input type="checkbox" id="decrypted" value="Decrypted" checked> Decrypted </input>
 		</p>
@@ -500,7 +487,7 @@ function convertCSVtoString(inputcsv){
 		<div class="span10"> 
 			<button class="btn btn-primary" type="button" onclick="submitQuery(buildParams());updateURL();">Submit <i class="icon-chevron-right icon-white"></i></button>
 			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i> Select</button>
-			<button class="btn" type="button" onclick="$('#results').html(''); $('#data_results').css('display', 'none'); "><i class="icon-remove"></i> Clear</button>
+			<button class="btn" type="button" onclick="$('#results').html(''); $('#histogram').css('display', 'none'); $('#scatterplot').css('display', 'none'); $('#query_took').css('display', 'none');$('#next').css('display', 'none');"><i class="icon-remove"></i> Clear</button>
 			
 			<p><div id="query_took"></div></p>
 
