@@ -4,6 +4,8 @@ function reload(){
 
 
 function plot(results,questions){
+	document.getElementById('scatterplot').innerHTML = '';
+	document.getElementById('histogram').innerHTML = '';
 	users=[]
 	question0=[]
 	question1=[]
@@ -16,15 +18,15 @@ function plot(results,questions){
 				users[results[i].user]=1;				
 			}
 			if(results[i].variable_name==questions[0]){
-					question0[results[i].user]=results[i].human_readable_response;
-					if (!(results[i].human_readable_response in answers0)){
-						answers0[results[i].human_readable_response]=1
+					question0[results[i].user]=results[i].human_readable_response.replace(",",".");
+					if (!(results[i].human_readable_response.replace(",",".") in answers0)){
+						answers0[results[i].human_readable_response.replace(",",".")]=1
 					}
 				}
 			else if(results[i].variable_name==questions[1]){
-					question1[results[i].user]=results[i].human_readable_response;
-					if (!(results[i].human_readable_response in answers1)){
-						answers1[results[i].human_readable_response]=1
+					question1[results[i].user]=results[i].human_readable_response.replace(",",".");
+					if (!(results[i].human_readable_response.replace(",",".") in answers1)){
+						answers1[results[i].human_readable_response.replace(",",".")]=1
 					}
 			}
 		}
@@ -62,13 +64,23 @@ function plot(results,questions){
 }
 
 function BuildDataPlot(data,ques,answers0,answers1,percent){
-	document.getElementById('scatterplot').innerHTML = '';
 
 	$('#scatterplot').css('display', 'block');
 
-	var margin = {top: 20, right: 150, bottom: 400, left: 350},
-	    width = 960 - margin.left - margin.right,
-	    height = 700 - margin.top - margin.bottom;
+	ans0=[];
+	ans1=[];
+	keys0=Object.keys(answers0)
+	keys1=Object.keys(answers1)
+	for (i=0;i<keys0.length;i++){
+		ans0.push({'answer':keys0[i]})
+	}	
+	for (j=0;j<keys1.length;j++){
+		ans1.push({'answer':keys1[j]})
+	}
+
+	var margin = {top: 20, right: 40, bottom:40, left:40},
+	    width = 75*keys0.length- margin.right-margin.left,
+	    height = 75*keys1.length - margin.top-margin.bottom;
 
 	var x = d3.scale.ordinal()
 	    .rangePoints([0, width], .2);
@@ -128,27 +140,56 @@ function BuildDataPlot(data,ques,answers0,answers1,percent){
 	      .attr("transform", "translate(0," + height + ")")
 	      .call(xAxis)
 	     .selectAll("text")  
+		.data(ans0) 
               	.style("text-anchor", "end")
             	.attr("x", -6)
             	.attr("dx", ".50em")
                 .attr("transform", function(d) {
                 	return "rotate(-90)" 
-                })
-	     .append("text")
+                }).html(function(d){
+			return d.answer.substring(0,3)
+		})
+		.on("mouseover", function(d) {      
+			    div.transition()        
+				.style("opacity", .99);      
+			    div .html(d.answer)  
+				.style("left", (d3.event.pageX) + "px")     
+				.style("top", (d3.event.pageY - 28) + "px");    
+			    })                  
+			.on("mouseout", function(d) {       
+			    div.transition()        
+				.duration(500)      
+				.style("opacity", 0);   
+			})
+	      .append("text")
 		      .attr("class", "label")
 		      .attr("x", width + 68)
 		      .attr("y", -6)
 		      .style("text-anchor", "end")
-		      .text(ques[0])
+		      .text(ques[0]);
+	   
 
 	  svg.append("g")
 	      .attr("class", "y axis")
 	      .call(yAxis)
-	      .append("text")
-		      .attr("class", "label")
-		      .attr("y", -3)
-		      .attr("x", 0)
-		      .style("text-anchor", "end")
-		      .text(ques[1]);
+	      .selectAll("text")  
+			.data(ans1) 
+			.html(function(d){
+				return d.answer.substring(0,3)
+			})
+			.on("mouseover", function(d) {      
+			    div.transition()        
+				.style("opacity", .99);      
+			    div .html(d.answer)  
+				.style("left", (d3.event.pageX) + "px")     
+				.style("top", (d3.event.pageY - 28) + "px");    
+			    })                  
+			.on("mouseout", function(d) {       
+			    div.transition()        
+				.duration(500)      
+				.style("opacity", 0);   
+			});
+
+		
 }
 
