@@ -126,6 +126,8 @@
 			used_token = "{{ tokens.connector_raw_all_data_researcher }}"
 			$('#perspectiveWell').css('background-color', '#FFD2D2');
 
+			$('#decryptedfield').css('display', 'none');
+			
 			$('#decrypted').prop('checked', false);
 			$('#not_for_researcher_decrypted').css('display', 'none');
 			$('#not_for_user_users_div').css('display', 'block');
@@ -135,6 +137,7 @@
 		if (new_perspective == 'user') {
 			used_token = "{{ tokens.connector_raw_all_data }}"
 			$('#perspectiveWell').css('background-color', '');
+			$('#decryptedfield').css('display', 'block');
 			$('#decrypted').prop('checked', true);
 			$('#not_for_researcher_decrypted').css('display', 'block');
 			$('#not_for_user_users_div').css('display', 'none');
@@ -184,11 +187,12 @@
 			<li class="nav-header">Raw Data</li>
 			<li class="divider"></li>
 			<ul class="nav nav-list">
-				<li><a href="{% url 'raw_users' %} ">User</a></li>
+				<li class="nav-header"><a href="{% url 'raw_users' %} ">User</a></li>
 			</ul>
-				<ul class="nav nav-list">
-					<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">Questionnaires</li>
-					
+			<ul class="nav nav-list">
+					<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">Questionnaires</a></li>
+			</ul>
+			<ul class="nav nav-list">
 					<li class="nav-header">Phone Data</li>
 					<li><a href="{% url 'raw_phone_location' %} ">Location</a></li>
 					<li><a href="{% url 'raw_phone_bluetooth' %} ">Bluetooth</a></li>
