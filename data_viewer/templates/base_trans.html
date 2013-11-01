@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+{% load i18n %} 
+<html lang="en">
+<head>
+	<noscript>
+		<meta http-equiv="refresh" content="0; url={% url "noscript" %}" />
+	</noscript>
+	<link rel="icon"
+	    type="image/png"
+		    href="{% static "img/favicon.png" %}">
+    <meta charset="utf-8">
+    <title>SensibleDTU: Data Viewer</title>
+    <meta name="description" content="">
+    <meta name="author" content="Arkadiusz Stopczynski">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge" />
+    <script>
+    	try {
+    		NodeList;
+    		HTMLCollection;
+    	} catch (err) {
+		window.location = "{% url "changebrowser" %}";
+    	}
+    </script>
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+        }
+    </style>
+    {% bootstrap_stylesheet_tag %}
+    {% bootstrap_stylesheet_tag "responsive" %}
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script src="{% static 'datepicker/js/bootstrap-datepicker.js' %}"></script>
+	<script src="{% static 'spinner.js' %}"></script>
+
+
+    {% bootstrap_javascript_tag %}
+	<link rel="stylesheet" href="{% static 'datepicker/css/datepicker.css' %}"/>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container" >
+
+			<button style="color:#000000" type="button" class="btn btn-navbar btn-primary" data-toggle="collapse" data-target=".nav-collapse">
+				    <i class="icon-tasks"></i> Menu
+					          </button>
+
+			<div class="nav"><img src="{% static "img/red_logo5_40px.png" %}"></div>
+            <a class="brand" href="{% url 'home' %}">SensibleDTU: Data Viewer</a>
+			{% if user.is_authenticated %}
+
+
+
+			<div class="nav-collapse collapse">
+				<ul class="nav">
+					<li class="divider-vertical"></li>
+					<li><a href="{% url 'home' %}" class=""><i class="icon-home"></i> {% trans "Home" %}</a></li>
+					<li class="divider-vertical"></li>
+					<li><a href="{% url 'about' %}" class=""><i class="icon-question-sign"></i> {% trans "About" %}</a></li>
+					<li class="divider-vertical"></li>
+					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> {% trans "Quit" %}</a></li>
+					<li class="divider-vertical"></li>
+				</ul>
+			</div>
+
+			<ul class="nav pull-right action">
+				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+					<i class="icon-user icon-white"></i>
+					{% if user.first_name != '' %}
+					{{ user.first_name }}
+					{% else %}
+					My Profile
+					{% endif %}
+					<span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					{% if not user.first_name %}
+					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> Set my name</a></li>
+					{% endif %}
+					<li><a href="{% url 'logout' %}"><i class="icon-road"></i> Logout</a></li>
+				</ul>
+			</ul>
+
+
+			{% else %}
+			<div class="nav-collapse collapse">
+				<ul class="nav">
+					<li class="divider-vertical"></li>
+					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> Quit</a></li>
+					<li class="divider-vertical"></li>
+				</div>
+			{% endif %}
+
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+	var base_url = '{{ base_url }}';
+	var current_url = base_url;
+	var perspective = 'user';
+	var used_token = '{{ tokens.connector_raw_all_data }}';
+	var query_start = 0;
+	var query_end = 0;
+
+	function refreshPerspective() {
+		perspectiveChange(perspective)
+	}
+
+
+
+	function perspectiveChange(new_perspective) {
+		console.log(perspective + ' ' +new_perspective);
+		if (new_perspective == 'researcher') {
+			used_token = "{{ tokens.connector_raw_all_data_researcher }}"
+			$('#perspectiveWell').css('background-color', '#FFD2D2');
+
+			$('#decryptedfield').css('display', 'none');
+			
+			$('#decrypted').prop('checked', false);
+			$('#not_for_researcher_decrypted').css('display', 'none');
+			$('#not_for_user_users_div').css('display', 'block');
+
+
+		}
+		if (new_perspective == 'user') {
+			used_token = "{{ tokens.connector_raw_all_data }}"
+			$('#perspectiveWell').css('background-color', '');
+			$('#decryptedfield').css('display', 'block');
+			$('#decrypted').prop('checked', true);
+			$('#not_for_researcher_decrypted').css('display', 'block');
+			$('#not_for_user_users_div').css('display', 'none');
+			$('#not_for_user_users').prop('value','');
+		}
+
+		perspective = new_perspective;
+		try {
+			updateURL();
+		}
+		catch(err) {}
+	}
+
+</script>
+
+
+<div class="container">
+	{% if tokens.connector_raw_all_data_researcher %}
+	<div class="row-fluid">
+				<div id="perspectiveWell" class="well well-small span12"> 
+
+					<label class="radio">
+						<p class="lead">
+						<input type="radio" name="perspectiveRadios" id="perspectiveRadiosResearcher" value="researcher" checked onchange="perspectiveChange('researcher')">
+						<strong>Researcher</strong> token {{ tokens.connector_raw_all_data_researcher }}</p>
+						</input>
+					</label>
+					{% if tokens.connector_raw_all_data %}
+					<label class="radio">
+						<p class="lead">
+						<input type="radio" name="perspectiveRadios" id="perspectiveRadiosUser" value="user" onchange="perspectiveChange('user')">
+						<strong>User</strong> token {{ tokens.connector_raw_all_data }}
+						</input>
+						</p>
+					</label>
+					{% endif %}
+
+					</div>
+					<script> perspectiveChange('researcher'); document.getElementById('perspectiveRadiosResearcher').checked=true; </script>
+			</div>
+			{% endif %}
+	<div class="row-fluid">
+		<div class="span3">
+
+			{% if user.is_authenticated %}
+		<ul class="nav nav-list">
+			<li class="nav-header">Raw Data</li>
+			<li class="divider"></li>
+			<ul class="nav nav-list">
+				<li class="nav-header"><a href="{% url 'raw_users' %} ">{% trans "User" %}</a></li>
+			</ul>
+			<ul class="nav nav-list">
+					<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">{% trans "Questionnaires" %}</a></li>
+			</ul>
+			<ul class="nav nav-list">
+					<li class="nav-header">{% trans "Phone Data" %}</li>
+					<li><a href="{% url 'raw_phone_location' %} ">{% trans "Location" %}</a></li>
+					<li><a href="{% url 'raw_phone_bluetooth' %} ">{% trans "Bluetooth" %}</a></li>
+					<li><a href="{% url 'raw_phone_calllog' %} ">{% trans "Call Log" %}</a></li>
+					<li><a href="{% url 'raw_phone_sms' %} ">{% trans "SMS" %}</a></li>
+					<li><a href="{% url 'raw_phone_wifi' %} ">{% trans "Wifi" %}</a></li>
+					
+					<li class="nav-header">{% trans "Facebook Data" %}</li>
+					<li><a href="{% url 'raw_facebook_birthday' %} ">{% trans "Birthday" %}</a></li>
+					<li><a href="{% url 'raw_facebook_education' %} ">{% trans "Education" %}</a></li>
+					<li><a href="{% url 'raw_facebook_friends' %} ">{% trans "Friends" %}</a></li>
+					<li><a href="{% url 'raw_facebook_friendlists' %} ">{% trans "Friend Lists" %}</a></li>
+					<li><a href="{% url 'raw_facebook_groups' %} ">{% trans "Groups" %}</a></li>
+					<li><a href="{% url 'raw_facebook_hometown' %} ">{% trans "Hometown" %}</a></li>
+					<li><a href="{% url 'raw_facebook_interests' %} ">{% trans "Interests" %}</a></li>
+					<li><a href="{% url 'raw_facebook_likes' %} ">{% trans "Likes" %}</a></li>
+					<li><a href="{% url 'raw_facebook_location' %} ">{% trans "Location" %}</a></li>
+					<li><a href="{% url 'raw_facebook_political' %} ">{% trans "Political" %}</a></li>
+					<li><a href="{% url 'raw_facebook_religion' %} ">{% trans "Religion" %}</a></li>
+					<!--<li><a href="{% url 'raw_facebook_work' %} ">Work</a></li>-->
+					
+			</ul>
+					
+			<li class="nav-header">{% trans "Answers" %}</li>
+			<li class="divider"></li>
+		
+		
+		</ul>
+		{% endif %}
+
+		</div> 
+
+		<div class="span9">
+	 		{% bootstrap_messages %}
+	     	{% block content %}{% endblock %}
+			</div>
+		</div> 
+
+	<div class="row-fluid">
+		<div class="span12">
+	     	{% block results %}{% endblock %}
+		</div>
+	</div>
+
+	<!--</div>-->
+	<p><hr></p>
+	<footer id=footer class="row">
+	<div class="span6">
+		<p>This is <a href="https://github.com/MIT-Model-Open-Data-and-Identity-System/SensibleData-Apps-DataViewer/">SensibleDTU: Data Viewer</a>
+		<span class="label label-important">0.0.1-devel</span></p>
+	</div>
+
+	<div class="span6" style="text-align:right">
+		<p>
+		&copy; <a href="https://raw.github.com/MIT-Model-Open-Data-and-Identity-System/SensibleData-Service/master/sensible_data_service/documents/legal_notices">Technical University of Denmark</a> 2013
+		|
+		<a href="https://raw.github.com/MIT-Model-Open-Data-and-Identity-System/SensibleData-Platform/master/LICENSE">software license</a>
+		</p>
+	</div>
+	<div class="span6">
+		<p><a rel="license" href="https://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/80x15.png" /></a> <span xmlns:dct="https://purl.org/dc/terms/" property="dct:title"></span> licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.</p>
+	</div>	
+	</footer>
+</div> <!-- container -->
+
+<script>
+	refreshPerspective();
+</script>
+
+</body>
+</html>
