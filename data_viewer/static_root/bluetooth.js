@@ -105,12 +105,12 @@ function createnodes(content){
 		else{}
 	}
 
-	loslinks=linkslist;
-	keyslist=Object.keys(loslinks); 
+	linkscopy=linkslist;
+	keyslist=Object.keys(linkscopy); 
 	valueslist=[]
 
 	for (i=0;i<keyslist.length;i++){
-		val=loslinks[keyslist[i]];
+		val=linkscopy[keyslist[i]];
 		valueslist.push(val)
 	}
 
@@ -122,7 +122,7 @@ function createnodes(content){
 	percentage=Math.round(valueslist.length*0.1)
 	
 	for (z=0;z<keyslist.length;z++){
-		if (loslinks[keyslist[z]]>valueslist[percentage]) {
+		if (linkscopy[keyslist[z]]>valueslist[percentage]) {
 			names=keyslist[z].split(',');
 			if ((nodes.indexOf(names[0]))==-1){//newnode
 				nodes.push(names[0]);
@@ -137,7 +137,7 @@ function createnodes(content){
 				jsonnodes[nodes.indexOf(names[1])].size+=1;	
 			}
 
-			jsonlinks.push({'source': nodes.indexOf(names[0]), 'target': nodes.indexOf(names[1]), 'value':loslinks[keyslist[z]]})
+			jsonlinks.push({'source': nodes.indexOf(names[0]), 'target': nodes.indexOf(names[1]), 'value':linkscopy[keyslist[z]]})
 			
 		}	
 	}
