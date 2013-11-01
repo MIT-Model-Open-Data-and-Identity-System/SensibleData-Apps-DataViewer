@@ -37,7 +37,7 @@ def location(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'location':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'location':True}, context_instance=RequestContext(request))
 
 @login_required
 def bluetooth(request):
@@ -51,7 +51,7 @@ def bluetooth(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,  'bluetooth':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,  'bluetooth':True}, context_instance=RequestContext(request))
 
 @login_required
 def calllog(request):
@@ -65,7 +65,7 @@ def calllog(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'calllog': True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'calllog': True}, context_instance=RequestContext(request))
 
 @login_required
 def sms(request):
@@ -79,7 +79,7 @@ def sms(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,'sms': True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,'sms': True}, context_instance=RequestContext(request))
 
 @login_required
 def wifi(request):
@@ -93,7 +93,7 @@ def wifi(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,'wifi':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url,'wifi':True}, context_instance=RequestContext(request))
 
 @login_required
 def likes(request):
@@ -106,7 +106,7 @@ def likes(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'likes':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'likes':True}, context_instance=RequestContext(request))
 
 @login_required
 def friends(request):
@@ -119,7 +119,7 @@ def friends(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'friends':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'friends':True}, context_instance=RequestContext(request))
 
 @login_required
 def birthday(request):
@@ -132,7 +132,7 @@ def birthday(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'birthday':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'birthday':True}, context_instance=RequestContext(request))
 
 @login_required
 def education(request):
@@ -145,7 +145,7 @@ def education(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'education':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'education':True}, context_instance=RequestContext(request))
 
 @login_required
 def friendlists(request):
@@ -158,7 +158,7 @@ def friendlists(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'friendlists':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'friendlists':True}, context_instance=RequestContext(request))
 
 @login_required
 def groups(request):
@@ -171,7 +171,7 @@ def groups(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'groups':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'groups':True}, context_instance=RequestContext(request))
 
 @login_required
 def hometown(request):
@@ -184,7 +184,7 @@ def hometown(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'hometown':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'hometown':True}, context_instance=RequestContext(request))
 
 @login_required
 def interests(request):
@@ -197,7 +197,7 @@ def interests(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'interests':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'interests':True}, context_instance=RequestContext(request))
 
 @login_required
 def locationfacebook(request):
@@ -210,7 +210,7 @@ def locationfacebook(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'locationfacebook':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'locationfacebook':True}, context_instance=RequestContext(request))
 
 @login_required
 def political(request):
@@ -223,7 +223,7 @@ def political(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'political':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'political':True}, context_instance=RequestContext(request))
 
 @login_required
 def religion(request):
@@ -236,7 +236,7 @@ def religion(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'religion':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'religion':True}, context_instance=RequestContext(request))
 
 @login_required
 def work(request):
@@ -263,7 +263,7 @@ def questionnarie(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc2': example_doc2, 'base_url': base_url, 'questionnaire':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc2': example_doc2, 'base_url': base_url, 'questionnaire':True}, context_instance=RequestContext(request))
 
 @login_required
 def users(request):
