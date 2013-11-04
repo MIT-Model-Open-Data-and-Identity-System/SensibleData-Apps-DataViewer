@@ -1,6 +1,7 @@
 # Django settings for data_viewer project.
 import django_sensible.settings
 import LOCAL_settings
+from django.utils.translation import ugettext as _
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -58,7 +59,11 @@ TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'da'
+LANGUAGES = (
+	('da', 'Danish'),
+	('en', 'English'),
+)
 
 SITE_ID = 1
 
@@ -119,8 +124,9 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -182,3 +188,12 @@ LOGGING = {
         },
     }
 }
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+	'django.core.context_processors.i18n',
+	'django.contrib.auth.context_processors.auth',
+)
+
+LOCALE_PATHS = (
+	'/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer/locale',
+)

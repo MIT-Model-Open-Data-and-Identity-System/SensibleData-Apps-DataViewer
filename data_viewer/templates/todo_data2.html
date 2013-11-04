@@ -17,8 +17,8 @@
 
 <script>
 var globaldata;
-var graph;
-var numquestions;
+var graph;		//if it's a questionnaire 
+var numquestions;	//if it's a questionnaire
 var opts = {
 			lines: 17, // The number of lines to draw
 			length: 0, // The length of each line
@@ -58,8 +58,7 @@ var opts = {
 		}
 
 		url = base_url +'/?bearer_token='+used_token + '&' + params_string
-		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
-		
+		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')	
 	}
 
 
@@ -152,9 +151,7 @@ function prettyPrint(obj){
 function ChangeToText(){
 		$('#changetext').css('display','none');
 		$('#changegraph').css('display','block');
-
 		$('#data_results').css('display', 'none');
-
 		$('#results').css('display', 'block');
 		$('#results').html(prettyPrint(globaldata));
 		$('#results_spinner').html(''); 
@@ -330,7 +327,6 @@ function nextdata()
 	}
 
 	function gotData(data, params) {
-
 			globaldata=data;
 			$('#results').css('display', 'block');
 			if (validate('visualization[]')=='0')
@@ -422,6 +418,7 @@ function nextdata()
 
 		if (document.getElementById('fields').value !='')
 			{params['fields'] = document.getElementById('fields').value}
+		
 		{%if questionnaire%}
 			if (document.getElementById('questions').value !='')
 			{
@@ -517,9 +514,6 @@ function nextdata()
 <div class="row">
 <form id="params_form" onchange="updateURL();" onclick="updateURL();">
 <p>
-		<!--<div class="span5">
-			<p class="lead"><input type="checkbox" id="param_pretty" value="Pretty" checked> Pretty formatting</input></p>
-		</div>-->
 
 <div class="span5" id="not_for_researcher_decrypted"> 
 	<p class="lead"><input type="checkbox" id="decrypted" value="Decrypted"> Decrypted </input></p>
@@ -667,6 +661,9 @@ function nextdata()
 		<p><ul class="pager">
 				<li class="previous" id='next' style='display:none' onclick="nextdata();updateURL();"><a href="#">Next &rarr;</a></li>
 			{% if location or bluetooth %}
+				<button class="btn btn-info" type="button" id="changegraph" style="display: none" onclick="ChangeToGraph();updateURL();">Get Map</button>
+				<button class="btn btn-info" type="button" id="changetext" style="display: none" onclick="ChangeToText();updateURL();">Get Text</button>
+			{% elif bluetooth%}
 				<button class="btn btn-info" type="button" id="changegraph" style="display: none" onclick="ChangeToGraph();updateURL();">Get Graph</button>
 				<button class="btn btn-info" type="button" id="changetext" style="display: none" onclick="ChangeToText();updateURL();">Get Text</button>
 			{% endif %}

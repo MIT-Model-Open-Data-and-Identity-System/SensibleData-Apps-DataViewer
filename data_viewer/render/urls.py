@@ -1,9 +1,11 @@
 from django.conf.urls import patterns, include, url
+from django.conf.urls.i18n import i18n_patterns
 
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+	(r'^i18n/', include('django.conf.urls.i18n')),
 	url(r'test', 'render.views.test', name='test'),
 	url(r'raw_phone_location', 'render.raw.location', name='raw_phone_location'),
 	url(r'raw_phone_bluetooth', 'render.raw.bluetooth', name='raw_phone_bluetooth'),
