@@ -19,6 +19,7 @@
 <script>
 var globaldata;
 var graph;
+var quest;
 var numquestions;
 var opts = {
 			lines: 17, // The number of lines to draw
@@ -235,7 +236,7 @@ function nextdata()
 								$('#results').css('display', 'block'); 
 								$('#results').html(data);
 								$('#results_spinner').html(''); 
-								{% if questionnaire %}
+								{% if questionnaire and tokens.connector_raw_all_data_researcher %}
 									$('#data_results').css('display', 'block');
 									html=globaldata;
 									newtext=convertHtmlToText(html);
@@ -312,7 +313,7 @@ function nextdata()
 							$('#results').css('display', 'block'); 
 							$('#results').html(JSON.stringify(data));
 							$('#results_spinner').html(''); 
-							{% if questionnaire %}
+							{% if questionnaire and tokens.connector_raw_all_data_researcher %}
 								$('#data_results').css('display', 'block');
 								if (graph==1){
 									visualization(globaldata['results'])
@@ -340,7 +341,8 @@ function nextdata()
 				$('#data_results').css('display', 'none');
 				if (params['format'] == 'json')
 				{
-					{%if questionnaire%}
+					{% if questionnaire and tokens.connector_raw_all_data_researcher %}
+						$('#data_results').css('display', 'block');
 						if (graph==1){
 							visualization(globaldata['results'])
 						}
@@ -353,7 +355,7 @@ function nextdata()
 				}
 				else if (params['format'] == 'pretty')
 				{
-					{%if questionnaire%}
+					{% if questionnaire and tokens.connector_raw_all_data_researcher %}
 						$('#data_results').css('display', 'block');
 						if (graph==1){			
 							html=globaldata;
@@ -367,7 +369,7 @@ function nextdata()
 							newtext=JSON.parse(newtext)
 							plot(newtext['results'],numquestions)
 						}
-					{%endif%}
+					{% endif %}
 					$('#results').html(data);
 				}
 				else if (params['format'] == 'csv')
@@ -551,6 +553,7 @@ function nextdata()
 <small>
 {{ example_doc | safe }}
 </small>
+	
 						</pre>
 					</div>
 
@@ -560,7 +563,28 @@ function nextdata()
 </div> 
 
 {% if questionnaire %}
-<div class="span6"> 
+<div class="span5"> 
+	<label>{% trans "Questionnaire" %}</label>
+	<script>
+		function changeexample(){
+			var SelectList = $('select#quest');
+			var quest = $('option:selected', SelectList).val();
+			if (quest=='example_1'){
+				document.getElementById('example_doc2').style.display="none";
+				document.getElementById('example_doc1').style.display="block";
+			}
+			else if (quest=='example_2'){
+				document.getElementById('example_doc1').style.display="none";
+				document.getElementById('example_doc2').style.display="block";
+			}
+		}
+	</script>
+	<select name="quest" id='quest' class="form-control" onchange="changeexample(this);">
+		<option value="example_1">Questionnaire 1</option>
+		<option value="example_2">Questionnaire 2</option>
+	</select>
+</div> 
+<div class="span5"> 
 	<label>{% trans "Questions to return" %}</label>
 		<div class="input-append">
 				<div class="dropdown">
@@ -572,9 +596,14 @@ function nextdata()
 
 					<div id="exampleques" class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="position: relative">
 						<pre style="word-wrap: break-word; white-space: pre-wrap; font-family:monospace; display: block; margin: 1em 0px">
-<small>
-{{ example_doc2 | safe }}
+
+<small id="example_doc1" style="display:block">
+{{ example_doc1 | safe }}
 </small>
+<small id="example_doc2" style="display:none">
+{{ 'I will fill this out later' | safe }}
+</small>
+	
 						</pre>
 					</div>
 

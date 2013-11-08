@@ -258,12 +258,12 @@ def questionnarie(request):
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/questionnaire'
 	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_questionnarie.json').read()),False)
-	example_doc2 = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_questionnarie2.json').read()),True)
+	example_doc1 = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_questionnarie2.json').read()),True)
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc2': example_doc2, 'base_url': base_url, 'questionnaire':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc1': example_doc1, 'base_url': base_url, 'questionnaire':True}, context_instance=RequestContext(request))
 
 @login_required
 def users(request):
