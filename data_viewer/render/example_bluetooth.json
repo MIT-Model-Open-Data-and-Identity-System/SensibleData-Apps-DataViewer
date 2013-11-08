@@ -1,0 +1,29 @@
+{
+    "_id": "48155e8696b4f029261cfd61d8e6dc7140a36c08_cb88b9866e4aed333114166c0f0a4b_1376652243",
+    "timestamp_added": 1376670813,
+    "name": "edu.mit.media.funf.probe.builtin.BluetoothProbe",
+    "timestamp": 1376652243,
+    "probe": "edu_mit_media_funf_probe_builtin_BluetoothProbe",
+    "user": "cb88b9866e4aed333114166c0f0a4b",
+    "device_id": "17ea14cd33905fa09e80811df9a454dc",
+    "device": "179a7b91-27d3-42ae-9cd1-065131f74cc0",
+    "device_bt_mac": "B0:EC:71:87:7B:01",
+    "data": {
+        "TIMESTAMP": 1376652243,
+        "PROBE": "edu.mit.media.funf.probe.builtin.BluetoothProbe",
+        "DEVICES": [
+            {
+                "android_bluetooth_device_extra_DEVICE": {
+                    "mAddress": "0281d7a013bb2680160e203bf7f60512c472493ed0f80b3dafefea7a1cba075e"
+                },
+                "android_bluetooth_device_extra_CLASS": {
+                    "mClass": 4063500
+                },
+                "android_bluetooth_device_extra_NAME": "9d54d41564800b3d9636bfb18c8821f9",
+                "android_bluetooth_device_extra_RSSI": -93
+            } 
+        ]
+    },
+    "sensible_token": "b50e08da81",
+    "uuid": "327e3502-fdaf-4ee0-a777-04d69e0270dd-v0.3.2.2-0.5"
+}

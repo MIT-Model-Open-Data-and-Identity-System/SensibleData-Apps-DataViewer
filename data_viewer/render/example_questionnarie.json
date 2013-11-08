@@ -1,0 +1,11 @@
+{
+      "_id": {
+        "$oid": "525802c35a2f910c673778ae"
+      }, 
+      "human_readable_response": "Enig", 
+      "user": "819ba11c9623058cfa45bffa957c4a", 
+      "variable_name": "self_efficacy_goal", 
+      "human_readable_question": "\nHer bedes du vurdere din evne til at kunne klare faglige udfordringer:...\n", 
+      "form_version": "90920167766cb9d5d5767b692b9d3acb", 
+      "last_answered": "2013-08-13 15:31:08+00:00"
+    }

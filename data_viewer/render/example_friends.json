@@ -1,0 +1,18 @@
+{
+    "_id": {
+        "$oid": "520a630c8520516c3f747b22"
+    },
+    "timestamp": 1376412428,
+    "data": [
+        {
+            "name": "a0cf44908084bbcfdef9a6c0670d63f0",
+            "id": "23f5a821ccefd60f51b8fc5925a80d21"
+        },
+        {
+            "name": "86e4bdd15e6c0b8fe3859210d850133e",
+            "id": "8a3aa9ca3aeaf219e16f135bca6870ee"
+        }
+    ],
+    "user": "c31ddeb0a3d6cc32d82b494336d9f2",
+    "facebook_id": "4d687af31640c6d959e91f6d533651ae"
+}
