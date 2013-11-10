@@ -45,16 +45,17 @@ OPENID_CREATE_USERS = django_sensible.settings.OPENID_CREATE_USERS
 OPENID_UPDATE_DETAILS_FROM_SREG = django_sensible.settings.OPENID_UPDATE_DETAILS_FROM_SREG
 OPENID_RENDER_FAILURE = django_sensible.settings.OPENID_RENDER_FAILURE
 
+SECRET_KEY = LOCAL_settings.SECRET_KEY
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [".sensible.dtu.dk"]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Copenhagen'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -108,8 +109,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '$(llq08zd2ljn*%kioe!6sune@q&6axob$_h#wr4_l$f_428c0'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -134,7 +133,7 @@ ROOT_URLCONF = 'data_viewer.urls'
 WSGI_APPLICATION = 'data_viewer.wsgi.application'
 
 TEMPLATE_DIRS = (
-		'/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer/templates'
+		ROOT_DIR+'templates'
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -148,8 +147,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-	'django_sensible',
-	'render',
+    'django_sensible',
+    'render',
 )
 
 INSTALLED_APPS += django_sensible.settings.INSTALLED_APPS
