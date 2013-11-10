@@ -1,0 +1,19 @@
+.node {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+ 
+.link {
+	stroke: #999;
+	stroke-opacity: .6;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}

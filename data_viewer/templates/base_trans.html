@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load bootstrap_toolkit %}
 {% load staticfiles %}
+{% load i18n %} 
 <html lang="en">
 <head>
 	<noscript>
@@ -51,21 +52,37 @@
         <div class="container" >
 
 			<button style="color:#000000" type="button" class="btn btn-navbar btn-primary" data-toggle="collapse" data-target=".nav-collapse">
-				    <i class="icon-tasks"></i> Menu
+				    <i class="icon-tasks"></i> {% trans "Menu" %}
 					          </button>
 
 			<div class="nav"><img src="{% static "img/red_logo5_40px.png" %}"></div>
             <a class="brand" href="{% url 'home' %}">SensibleDTU: Data Viewer</a>
 			{% if user.is_authenticated %}
 
+
+
 			<div class="nav-collapse collapse">
 				<ul class="nav">
 					<li class="divider-vertical"></li>
-					<li><a href="{% url 'home' %}" class=""><i class="icon-home"></i> Home</a></li>
+					<li><a href="{% url 'home' %}" class=""><i class="icon-home"></i> {% trans "Home" %}</a></li>
 					<li class="divider-vertical"></li>
-					<li><a href="{% url 'about' %}" class=""><i class="icon-question-sign"></i> About</a></li>
+					<li><a href="{% url 'about' %}" class=""><i class="icon-question-sign"></i> {% trans "About" %}</a></li>
 					<li class="divider-vertical"></li>
-					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> Quit</a></li>
+					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> {% trans "Quit" %}</a></li>
+					<li class="divider-vertical"></li>
+					<li><form class="navbar-form" action="{% url 'set_language' %}" method="post">
+						{% csrf_token %}
+						<input name="next" type="hidden" value="{{ redirect_to }}" />
+						<select name="language">
+							{% get_language_info_list for LANGUAGES as languages %}
+							{% for language in languages %}
+								<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+									{{ language.name_local }} ({{ language.code }})
+								</option>
+							{% endfor %}
+						</select>
+						<input class="btn" type="submit" value="Set language" />
+					</form></li>
 					<li class="divider-vertical"></li>
 				</ul>
 			</div>
@@ -82,9 +99,9 @@
 				</a>
 				<ul class="dropdown-menu">
 					{% if not user.first_name %}
-					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> Set my name</a></li>
+					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> {% trans "Set my name" %}</a></li>
 					{% endif %}
-					<li><a href="{% url 'logout' %}"><i class="icon-road"></i> Logout</a></li>
+					<li><a href="{% url 'logout' %}"><i class="icon-road"></i> {% trans "Logout" %}</a></li>
 				</ul>
 			</ul>
 
@@ -93,7 +110,7 @@
 			<div class="nav-collapse collapse">
 				<ul class="nav">
 					<li class="divider-vertical"></li>
-					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> Quit</a></li>
+					<li><a href="{% url 'quit' %}" class=""><i class="icon-remove"></i> {% trans "Quit" %}</a></li>
 					<li class="divider-vertical"></li>
 				</div>
 			{% endif %}
@@ -185,36 +202,36 @@
 			<li class="nav-header">Raw Data</li>
 			<li class="divider"></li>
 			<ul class="nav nav-list">
-				<li class="nav-header"><a href="{% url 'raw_users' %} ">User</a></li>
+				<li class="nav-header"><a href="{% url 'raw_users' %} ">{% trans "User" %}</a></li>
 			</ul>
 			<ul class="nav nav-list">
-					<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">Questionnaires</a></li>
+				<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">{% trans "Questionnaires" %}</a></li>
 			</ul>
 			<ul class="nav nav-list">
-					<li class="nav-header">Phone Data</li>
-					<li><a href="{% url 'raw_phone_location' %} ">Location</a></li>
-					<li><a href="{% url 'raw_phone_bluetooth' %} ">Bluetooth</a></li>
-					<li><a href="{% url 'raw_phone_calllog' %} ">Call Log</a></li>
-					<li><a href="{% url 'raw_phone_sms' %} ">SMS</a></li>
-					<li><a href="{% url 'raw_phone_wifi' %} ">Wifi</a></li>
+					<li class="nav-header">{% trans "Phone Data" %}</li>
+					<li><a href="{% url 'raw_phone_location' %} ">{% trans "Location" %}</a></li>
+					<li><a href="{% url 'raw_phone_bluetooth' %} ">{% trans "Bluetooth" %}</a></li>
+					<li><a href="{% url 'raw_phone_calllog' %} ">{% trans "Call Log" %}</a></li>
+					<li><a href="{% url 'raw_phone_sms' %} ">{% trans "SMS" %}</a></li>
+					<li><a href="{% url 'raw_phone_wifi' %} ">{% trans "Wifi" %}</a></li>
 					
-					<li class="nav-header">Facebook Data</li>
-					<li><a href="{% url 'raw_facebook_birthday' %} ">Birthday</a></li>
-					<li><a href="{% url 'raw_facebook_education' %} ">Education</a></li>
-					<li><a href="{% url 'raw_facebook_friends' %} ">Friends</a></li>
-					<li><a href="{% url 'raw_facebook_friendlists' %} ">Friend Lists</a></li>
-					<li><a href="{% url 'raw_facebook_groups' %} ">Groups</a></li>
-					<li><a href="{% url 'raw_facebook_hometown' %} ">Hometown</a></li>
-					<li><a href="{% url 'raw_facebook_interests' %} ">Interests</a></li>
-					<li><a href="{% url 'raw_facebook_likes' %} ">Likes</a></li>
-					<li><a href="{% url 'raw_facebook_location' %} ">Location</a></li>
-					<li><a href="{% url 'raw_facebook_political' %} ">Political</a></li>
-					<li><a href="{% url 'raw_facebook_religion' %} ">Religion</a></li>
+					<li class="nav-header">{% trans "Facebook Data" %}</li>
+					<li><a href="{% url 'raw_facebook_birthday' %} ">{% trans "Birthday" %}</a></li>
+					<li><a href="{% url 'raw_facebook_education' %} ">{% trans "Education" %}</a></li>
+					<li><a href="{% url 'raw_facebook_friends' %} ">{% trans "Friends" %}</a></li>
+					<li><a href="{% url 'raw_facebook_friendlists' %} ">{% trans "Friend Lists" %}</a></li>
+					<li><a href="{% url 'raw_facebook_groups' %} ">{% trans "Groups" %}</a></li>
+					<li><a href="{% url 'raw_facebook_hometown' %} ">{% trans "Hometown" %}</a></li>
+					<li><a href="{% url 'raw_facebook_interests' %} ">{% trans "Interests" %}</a></li>
+					<li><a href="{% url 'raw_facebook_likes' %} ">{% trans "Likes" %}</a></li>
+					<li><a href="{% url 'raw_facebook_location' %} ">{% trans "Location" %}</a></li>
+					<li><a href="{% url 'raw_facebook_political' %} ">{% trans "Political" %}</a></li>
+					<li><a href="{% url 'raw_facebook_religion' %} ">{% trans "Religion" %}</a></li>
 					<!--<li><a href="{% url 'raw_facebook_work' %} ">Work</a></li>-->
 					
 			</ul>
 					
-			<li class="nav-header">Answers</li>
+			<li class="nav-header">{% trans "Answers" %}</li>
 			<li class="divider"></li>
 		
 		
@@ -240,7 +257,7 @@
 	<footer id=footer class="row">
 	<div class="span6">
 		<p>This is <a href="https://github.com/MIT-Model-Open-Data-and-Identity-System/SensibleData-Apps-DataViewer/">SensibleDTU: Data Viewer</a>
-		<span class="label label-important">0.0.1-devel</span></p>
+		<span class="label label-info">0.1.0</span></p>
 	</div>
 
 	<div class="span6" style="text-align:right">

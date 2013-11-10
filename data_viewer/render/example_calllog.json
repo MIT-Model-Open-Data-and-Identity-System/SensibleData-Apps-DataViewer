@@ -1,0 +1,25 @@
+{
+    "_id": "30fe887e12ca3e03fd4b60e9625a1d54dcd9b60b_cb88b9866e4aed333114166c0f0a4b_1364752699",
+    "timestamp_added": 1376647674,
+    "name": "edu.mit.media.funf.probe.builtin.CallLogProbe",
+    "timestamp": 1364752699,
+    "probe": "edu_mit_media_funf_probe_builtin_CallLogProbe",
+    "user": "cb88b9866e4aed333114166c0f0a4b",
+    "device_id": "17ea14cd33905fa09e80811df9a454dc",
+    "device": "179a7b91-27d3-42ae-9cd1-065131f74cc0",
+    "device_bt_mac": "B0:EC:71:87:7B:01",
+    "data": {
+        "date": 1364752699660,
+        "name": "f69ed43b7410a6c83d6f4dea828359d21ffd469d",
+        "numbertype": "902ba3cda1883801594b6e1b452790cc53948fda",
+        "PROBE": "edu.mit.media.funf.probe.builtin.CallLogProbe",
+        "number": "f76a12fa900ce54862e1791cae8e040416eed737",
+        "numberlabel": "",
+        "TIMESTAMP": 1364752699,
+        "duration": 2,
+        "_id": 104,
+        "type": 2
+    },
+    "sensible_token": "b50e08da81",
+    "uuid": "5b039682-a6fd-4b16-82d2-10e8bd9567cd-v0.3.2.2-0.5"
+}

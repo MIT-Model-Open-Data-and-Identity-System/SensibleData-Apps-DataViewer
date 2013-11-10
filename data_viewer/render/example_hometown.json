@@ -1,0 +1,12 @@
+{
+    "_id": {
+        "$oid": "520a63098520516c3f747b1c"
+    },
+    "timestamp": 1376412425,
+    "data": {
+        "id": "108126032553728",
+        "name": "Zaragoza, Spain"
+    },
+    "user": "c31ddeb0a3d6cc32d82b494336d9f2",
+    "facebook_id": "4d687af31640c6d959e91f6d533651ae"
+}

@@ -1,0 +1,324 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-11-04 13:42+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/about.html:7 templates/base_trans.html:69
+msgid "About"
+msgstr ""
+
+#: templates/about.html:12
+msgid "What?"
+msgstr ""
+
+#: templates/about.html:14
+msgid "is part of"
+msgstr ""
+
+#: templates/about.html:14
+msgid "project."
+msgstr ""
+
+#: templates/about.html:15
+msgid "With this application you can access to the data."
+msgstr ""
+
+#: templates/base_trans.html:55
+msgid "Menu"
+msgstr ""
+
+#: templates/base_trans.html:67
+msgid "Home"
+msgstr ""
+
+#: templates/base_trans.html:71 templates/base_trans.html.py:113
+msgid "Quit"
+msgstr ""
+
+#: templates/base_trans.html:102
+msgid "Set my name"
+msgstr ""
+
+#: templates/base_trans.html:104
+msgid "Logout"
+msgstr ""
+
+#: templates/base_trans.html:205
+msgid "User"
+msgstr ""
+
+#: templates/base_trans.html:208 templates/data.html:9
+#: templates/todo_data2_trans.html:512
+msgid "Questionnaires"
+msgstr ""
+
+#: templates/base_trans.html:211
+msgid "Phone Data"
+msgstr ""
+
+#: templates/base_trans.html:212 templates/base_trans.html.py:227
+#: templates/todo_data2_trans.html:478
+msgid "Location"
+msgstr ""
+
+#: templates/base_trans.html:213 templates/todo_data2_trans.html:480
+msgid "Bluetooth"
+msgstr ""
+
+#: templates/base_trans.html:214 templates/todo_data2_trans.html:482
+msgid "Call Log"
+msgstr ""
+
+#: templates/base_trans.html:215 templates/todo_data2_trans.html:484
+msgid "SMS"
+msgstr ""
+
+#: templates/base_trans.html:216 templates/todo_data2_trans.html:486
+msgid "Wifi"
+msgstr ""
+
+#: templates/base_trans.html:218
+msgid "Facebook Data"
+msgstr ""
+
+#: templates/base_trans.html:219
+msgid "Birthday"
+msgstr ""
+
+#: templates/base_trans.html:220
+msgid "Education"
+msgstr ""
+
+#: templates/base_trans.html:221
+msgid "Friends"
+msgstr ""
+
+#: templates/base_trans.html:222
+msgid "Friend Lists"
+msgstr ""
+
+#: templates/base_trans.html:223
+msgid "Groups"
+msgstr ""
+
+#: templates/base_trans.html:224
+msgid "Hometown"
+msgstr ""
+
+#: templates/base_trans.html:225
+msgid "Interests"
+msgstr ""
+
+#: templates/base_trans.html:226
+msgid "Likes"
+msgstr ""
+
+#: templates/base_trans.html:228
+msgid "Political"
+msgstr ""
+
+#: templates/base_trans.html:229
+msgid "Religion"
+msgstr ""
+
+#: templates/base_trans.html:234
+msgid "Answers"
+msgstr ""
+
+#: templates/dashboard.html:11 templates/home.html:6
+msgid "Welcome to"
+msgstr ""
+
+#: templates/data.html:10 templates/data.html.py:16 templates/data.html:22
+msgid "Description..."
+msgstr ""
+
+#: templates/data.html:21
+msgid "Mobile"
+msgstr ""
+
+#: templates/home.html:9
+msgid "Here you can access the data collected in the experiment."
+msgstr ""
+
+#: templates/home.html:12
+msgid "Start"
+msgstr ""
+
+#: templates/home.html:14
+msgid "Login"
+msgstr ""
+
+#: templates/todo_data2_trans.html:488
+msgid "Facebook Likes"
+msgstr ""
+
+#: templates/todo_data2_trans.html:490
+msgid "Facebook Friends"
+msgstr ""
+
+#: templates/todo_data2_trans.html:492
+msgid "Facebook Friend Lists"
+msgstr ""
+
+#: templates/todo_data2_trans.html:494
+msgid "Facebook Birthday"
+msgstr ""
+
+#: templates/todo_data2_trans.html:496
+msgid "Facebook Education"
+msgstr ""
+
+#: templates/todo_data2_trans.html:498
+msgid "Facebook Groups"
+msgstr ""
+
+#: templates/todo_data2_trans.html:500
+msgid "Facebook Hometown"
+msgstr ""
+
+#: templates/todo_data2_trans.html:502
+msgid "Facebook Interests"
+msgstr ""
+
+#: templates/todo_data2_trans.html:504
+msgid "Facebook Location"
+msgstr ""
+
+#: templates/todo_data2_trans.html:506
+msgid "Facebook Political"
+msgstr ""
+
+#: templates/todo_data2_trans.html:508
+msgid "Facebook Religion"
+msgstr ""
+
+#: templates/todo_data2_trans.html:510
+msgid "Facebook Work"
+msgstr ""
+
+#: templates/todo_data2_trans.html:525
+msgid "Decrypted"
+msgstr ""
+
+#: templates/todo_data2_trans.html:530
+msgid "Sort by"
+msgstr ""
+
+#: templates/todo_data2_trans.html:532
+msgid "Field you want to sort by"
+msgstr ""
+
+#: templates/todo_data2_trans.html:533
+msgid "Descending"
+msgstr ""
+
+#: templates/todo_data2_trans.html:534
+msgid "Ascending"
+msgstr ""
+
+#: templates/todo_data2_trans.html:540
+msgid "Fields to return"
+msgstr ""
+
+#: templates/todo_data2_trans.html:543
+msgid "Enter the fields separeted with ','"
+msgstr ""
+
+#: templates/todo_data2_trans.html:564
+msgid "Questions to return"
+msgstr ""
+
+#: templates/todo_data2_trans.html:567
+msgid "Enter the questions separeted with ','"
+msgstr ""
+
+#: templates/todo_data2_trans.html:588
+msgid "Start Date"
+msgstr ""
+
+#: templates/todo_data2_trans.html:590 templates/todo_data2_trans.html:608
+msgid "epoch timestamp"
+msgstr ""
+
+#: templates/todo_data2_trans.html:606
+msgid "End Date"
+msgstr ""
+
+#: templates/todo_data2_trans.html:624
+msgid "No. of documents (max. 10)"
+msgstr ""
+
+#: templates/todo_data2_trans.html:625 templates/todo_data2_trans.html:628
+msgid "No. of documents"
+msgstr ""
+
+#: templates/todo_data2_trans.html:627
+msgid "No. of documents (max. 1000)"
+msgstr ""
+
+#: templates/todo_data2_trans.html:633
+msgid "Users"
+msgstr ""
+
+#: templates/todo_data2_trans.html:634
+msgid "Comma separated list of users"
+msgstr ""
+
+#: templates/todo_data2_trans.html:640
+msgid "Visualization"
+msgstr ""
+
+#: templates/todo_data2_trans.html:642
+msgid "Json Pretty "
+msgstr ""
+
+#: templates/todo_data2_trans.html:643
+msgid "Json Format "
+msgstr ""
+
+#: templates/todo_data2_trans.html:644
+msgid "CSV format "
+msgstr ""
+
+#: templates/todo_data2_trans.html:646
+msgid "Map "
+msgstr ""
+
+#: templates/todo_data2_trans.html:648
+msgid "Graph"
+msgstr ""
+
+#: templates/todo_data2_trans.html:661
+msgid "Submit"
+msgstr ""
+
+#: templates/todo_data2_trans.html:662
+msgid " Select"
+msgstr ""
+
+#: templates/todo_data2_trans.html:663
+msgid " Clear"
+msgstr ""
+
+#: templates/todo_data2_trans.html:670
+msgid "Get Graph"
+msgstr ""
+
+#: templates/todo_data2_trans.html:671
+msgid "Get Text"
+msgstr ""
