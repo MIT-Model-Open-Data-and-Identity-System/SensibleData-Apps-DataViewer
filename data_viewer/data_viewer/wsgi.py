@@ -16,10 +16,13 @@ framework.
 import os
 import sys
 
-sys.path.append('/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer')
-sys.path.append('/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer')
+sys.path.append('/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer')
+sys.path.append('/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer')
 os.environ["DJANGO_SETTINGS_MODULE"] = "data_viewer.settings"
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+
+from paste.deploy.config import PrefixMiddleware
+application = PrefixMiddleware(application, prefix='/apps/data_viewer/')
 

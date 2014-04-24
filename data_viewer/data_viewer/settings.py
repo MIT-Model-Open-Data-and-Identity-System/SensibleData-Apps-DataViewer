@@ -18,6 +18,7 @@ ROOT_DIR = LOCAL_settings.ROOT_DIR
 ROOT_URL = LOCAL_settings.ROOT_URL
 BASE_URL = LOCAL_settings.BASE_URL
 APPLICATION_URL = LOCAL_settings.APPLICATION_URL
+DATA_EXPORT_URL = LOCAL_settings.DATA_EXPORT_URL
 
 SENSIBLE_URL = LOCAL_settings.SENSIBLE_URL
 
@@ -140,7 +141,7 @@ ROOT_URLCONF = 'data_viewer.urls'
 WSGI_APPLICATION = 'data_viewer.wsgi.application'
 
 TEMPLATE_DIRS = (
-		'/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer/templates'
+		'/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer/templates'
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -156,6 +157,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 	'django_sensible',
 	'render',
+	'kombu.transport.django',
+	'djcelery',
 )
 
 INSTALLED_APPS += django_sensible.settings.INSTALLED_APPS
@@ -195,5 +198,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 LOCALE_PATHS = (
-	'/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer/locale',
+	'/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer/locale',
 )
+BROKER_URL = 'django://'
+
+import djcelery
+djcelery.setup_loader()
