@@ -141,7 +141,7 @@ ROOT_URLCONF = 'data_viewer.urls'
 WSGI_APPLICATION = 'data_viewer.wsgi.application'
 
 TEMPLATE_DIRS = (
-		'/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer/templates'
+		ROOT_DIR + 'templates'
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -198,7 +198,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 LOCALE_PATHS = (
-	'/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer/locale',
+	ROOT_DIR + 'locale',
 )
 BROKER_URL = 'django://'
 
