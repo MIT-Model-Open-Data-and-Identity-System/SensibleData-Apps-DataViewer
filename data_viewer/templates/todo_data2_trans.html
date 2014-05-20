@@ -77,6 +77,9 @@ function updateURL() {
 	}
 
 function saveDataToFile() {
+    if (!confirm("Are you sure you want to export data with the selected parameters?")) {
+      return
+    }
     var query_url = getURL();
     var success_callback = function (data) {
         console.log(data);

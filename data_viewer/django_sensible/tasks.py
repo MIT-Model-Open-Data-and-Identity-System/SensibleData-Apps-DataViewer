@@ -17,24 +17,41 @@ EXPORTED_DATA_FOLDER = "/Users/radugatej/DTU/sensibleDTU/data/exported_data/"
 @task
 def fetch_data_worker(start_url, user):
 
-	service_response = json.loads(urllib2.urlopen(start_url).read())
-	print service_response
+	service_response = parse_response(urllib2.urlopen(start_url).read())
 	results = service_response.get("results")
-	results_file = open(EXPORTED_DATA_FOLDER + user + "_" + hashlib.sha256("".join(service_response.keys())).hexdigest() + "_" + str(int(time.time())), "a")
-	print results
+	results_file = open(EXPORTED_DATA_FOLDER + user + "_" + str(int(time.time())), "a")
+	message = ""
 	while results:
 		for result in results:
 			results_file.write(str(result) + "\n")
 		results_file.flush()
 		try:
-			next_request = service_response["meta"]["paging"]["links"]["next"]
-			service_response = json.loads(urllib2.urlopen(next_request).read())
+			next_request = service_response.get("next")
+			if next_request:
+				service_response = parse_response(urllib2.urlopen(next_request).read())
 			results = service_response.get("results")
-		except KeyError:
-			break
+		except BaseException, e:
+			if "expired" in service_response:
+				message = "Your token has expired during export, therefore the results are incomplete."
 	results_file.close()
 
-	return settings.DATA_EXPORT_URL + os.path.basename(results_file.name)
+	return {"file_url": settings.DATA_EXPORT_URL + os.path.basename(results_file.name), "message": message}
+
+def parse_response(response):
+	parsed_response = {}
+	if str(response).startswith("#"):#means we have CSV
+		meta = "".join([line.split("#")[1] for line in str(response).split("\n") if line.startswith("#")])
+		meta = json.loads(meta)
+		if meta.get("paging"):
+			parsed_response["next"] = meta["paging"]["links"]["next"]
+		parsed_response["results"] = [line for line in str(response).split("\n") if not line.startswith("#")][1:]
+	else:
+		json_response = json.loads(response)
+		if json_response["meta"].get("paging"):
+			parsed_response["next"] = json_response["meta"]["paging"]["links"]["next"]
+		parsed_response["results"] = json_response["results"]
+
+	return parsed_response
 
 @task
 def notify_user(result, username):
@@ -46,7 +63,8 @@ def notify_user(result, username):
 	if not first_name:
 		first_name = "user"
 	notification_message = "Dear " + first_name + ",\n\nYour data export is complete. You can download the file from the link below. Please note that after 1 hour, the file will be deleted."
-	notification_message += "\n\nDownload link: " + result
+	notification_message += "\n\nDownload link: " + result["file_url"]
+	if result["mesage"]: notification_message += "\n\nPlease note: " + result["message"]
 	notification_message += "\n\nKind regards,\nThe SensibleDTU team"
 	send_email(email, notification_message)
 
