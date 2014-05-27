@@ -21,15 +21,17 @@ def fetch_data_worker(start_url, user):
 	results = service_response.get("results")
 	results_file = open(EXPORTED_DATA_FOLDER + user + "_" + str(int(time.time())), "a")
 	message = ""
+
 	while results:
 		for result in results:
 			results_file.write(str(result) + "\n")
 		results_file.flush()
+		results = None
 		try:
 			next_request = service_response.get("next")
 			if next_request:
 				service_response = parse_response(urllib2.urlopen(next_request).read())
-			results = service_response.get("results")
+				results = service_response.get("results")
 		except BaseException, e:
 			if "expired" in service_response:
 				message = "Your token has expired during export, therefore the results are incomplete."
@@ -64,7 +66,7 @@ def notify_user(result, username):
 		first_name = "user"
 	notification_message = "Dear " + first_name + ",\n\nYour data export is complete. You can download the file from the link below. Please note that after 1 hour, the file will be deleted."
 	notification_message += "\n\nDownload link: " + result["file_url"]
-	if result["mesage"]: notification_message += "\n\nPlease note: " + result["message"]
+	if result["message"]: notification_message += "\n\nPlease note: " + result["message"]
 	notification_message += "\n\nKind regards,\nThe SensibleDTU team"
 	send_email(email, notification_message)
 
