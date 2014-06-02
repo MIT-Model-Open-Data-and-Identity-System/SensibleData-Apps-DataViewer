@@ -19,6 +19,7 @@ ROOT_URL = LOCAL_settings.ROOT_URL
 BASE_URL = LOCAL_settings.BASE_URL
 APPLICATION_URL = LOCAL_settings.APPLICATION_URL
 DATA_EXPORT_URL = LOCAL_settings.DATA_EXPORT_URL
+EXPORT_FILE_SUFFIX = LOCAL_settings.EXPORT_FILE_SUFFIX
 
 SENSIBLE_URL = LOCAL_settings.SENSIBLE_URL
 
@@ -56,7 +57,7 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Copenhagen'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -176,17 +177,37 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+	'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        }
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+		'celery_task_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '/Users/radugatej/DTU/sensibleDTU/data/log/celeryd.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 2,
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+		'celery.task': {
+            'handlers': ['celery_task_logger'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -201,6 +222,9 @@ LOCALE_PATHS = (
 	ROOT_DIR + 'locale',
 )
 BROKER_URL = 'django://'
+
+CELERYD_LOG_FILE=LOCAL_settings.CELERYD_LOG_FILE
+CELERYD_LOG_LEVEL=LOCAL_settings.CELERYD_LOG_LEVEL
 
 import djcelery
 djcelery.setup_loader()
