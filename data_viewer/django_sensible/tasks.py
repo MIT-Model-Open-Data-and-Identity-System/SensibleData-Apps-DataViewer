@@ -11,17 +11,33 @@ from ntlm.smtp import ntlm_authenticate
 from django_sensible import SECURE_CONFIG
 from django_sensible.identity import getAttributes
 from email.mime.text import MIMEText as text
+from celery.utils.log import get_task_logger
 
-EXPORTED_DATA_FOLDER = "/Users/radugatej/DTU/sensibleDTU/data/exported_data/"
+
+DATA_EXPORT_FOLDER = "/Users/radugatej/DTU/sensibleDTU/data/exported_data/"
+#logger = get_task_logger("celery.task")
 
 @task
 def fetch_data_worker(start_url, user):
 
-	service_response = parse_response(urllib2.urlopen(start_url).read())
-	results = service_response.get("results")
-	results_file = open(EXPORTED_DATA_FOLDER + user + "_" + str(int(time.time())), "a")
-	message = ""
 
+	results_file = open(DATA_EXPORT_FOLDER + user + "_" + str(int(time.time())) + settings.EXPORT_FILE_SUFFIX, "a")
+	#logger.debug("Results file: " + str(results_file))
+	service_response = {}
+	try:
+		service_response = parse_response(urllib2.urlopen(start_url).read())
+		#logger.debug(service_response)
+	except urllib2.HTTPError, e:
+			message = json.loads(e.read())["meta"]["status"]["desc"]
+			return {"file_url": settings.DATA_EXPORT_URL + os.path.basename(results_file.name), "message": message}
+	except Exception, e:
+			message = "Unknown error."
+			return {"file_url": settings.DATA_EXPORT_URL + os.path.basename(results_file.name), "message": message}
+	#logger.debug(service_response)
+	results = service_response.get("results")
+	message = ""
+	if service_response.get("column_names"):
+		results_file.write(service_response.get("column_names") + "\n")
 	while results:
 		for result in results:
 			results_file.write(str(result) + "\n")
@@ -32,9 +48,15 @@ def fetch_data_worker(start_url, user):
 			if next_request:
 				service_response = parse_response(urllib2.urlopen(next_request).read())
 				results = service_response.get("results")
-		except BaseException, e:
-			if "expired" in service_response:
+		except urllib2.HTTPError, e:
+			if "Token is expired" in json.loads(e.read())["meta"]["status"]["desc"]:
 				message = "Your token has expired during export, therefore the results are incomplete."
+			else:
+				message = json.loads(e.read())["meta"]["status"]["desc"]
+			break
+		except Exception, e:
+			message = "Unknown error."
+			break
 	results_file.close()
 
 	return {"file_url": settings.DATA_EXPORT_URL + os.path.basename(results_file.name), "message": message}
@@ -46,20 +68,24 @@ def parse_response(response):
 		meta = json.loads(meta)
 		if meta.get("paging"):
 			parsed_response["next"] = meta["paging"]["links"]["next"]
-		parsed_response["results"] = [line for line in str(response).split("\n") if not line.startswith("#")][1:]
+		uncommented_lines = [line for line in str(response).split("\n") if not line.startswith("#")]
+		parsed_response["results"] = uncommented_lines[1:]
+		parsed_response["column_names"] = uncommented_lines[0]
 	else:
 		json_response = json.loads(response)
-		if json_response["meta"].get("paging"):
+		meta = json_response.get("meta")
+		if not meta:
+			raise Exception("Unknown service error")
+		if meta.get("paging"):
 			parsed_response["next"] = json_response["meta"]["paging"]["links"]["next"]
 		parsed_response["results"] = json_response["results"]
 
 	return parsed_response
 
 @task
-def notify_user(result, username):
+def notify_user(result, username, user_email):
 
-	email = json.loads(getAttributes(User.objects.get(username=username), ['email'])).get("email")
-	if not email:
+	if not user_email:
 		return
 	first_name = json.loads(getAttributes(User.objects.get(username=username), ['first_name'])).get("first_name")
 	if not first_name:
@@ -68,7 +94,7 @@ def notify_user(result, username):
 	notification_message += "\n\nDownload link: " + result["file_url"]
 	if result["message"]: notification_message += "\n\nPlease note: " + result["message"]
 	notification_message += "\n\nKind regards,\nThe SensibleDTU team"
-	send_email(email, notification_message)
+	send_email(user_email, notification_message)
 
 def send_email(receiver_email, message):
 	username = SECURE_CONFIG.SUPPORT_EMAIL_USERNAME
