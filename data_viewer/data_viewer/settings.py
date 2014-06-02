@@ -179,37 +179,17 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-	'formatters': {
-        'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
-        }
-    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-		'celery_task_logger': {
-            'level': 'DEBUG',
-            'filters': None,
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/Users/radugatej/DTU/sensibleDTU/data/log/celeryd.log',
-            'maxBytes': 1024*1024*5,
-            'backupCount': 2,
-            'formatter': 'verbose'
-        },
     },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
-            'propagate': True,
-        },
-		'celery.task': {
-            'handlers': ['celery_task_logger'],
-            'level': 'DEBUG',
             'propagate': True,
         },
     }
