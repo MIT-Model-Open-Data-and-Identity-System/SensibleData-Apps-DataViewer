@@ -161,6 +161,7 @@ INSTALLED_APPS = (
 	'render',
 	'kombu.transport.django',
 	'djcelery',
+	'djsupervisor',
 )
 
 INSTALLED_APPS += django_sensible.settings.INSTALLED_APPS
