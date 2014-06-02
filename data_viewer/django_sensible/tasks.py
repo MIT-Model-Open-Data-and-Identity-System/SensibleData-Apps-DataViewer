@@ -13,15 +13,13 @@ from django_sensible.identity import getAttributes
 from email.mime.text import MIMEText as text
 from celery.utils.log import get_task_logger
 
-
-DATA_EXPORT_FOLDER = "/Users/radugatej/DTU/sensibleDTU/data/exported_data/"
-#logger = get_task_logger("celery.task")
+ #logger = get_task_logger("celery.task")
 
 @task
 def fetch_data_worker(start_url, user):
 
 
-	results_file = open(DATA_EXPORT_FOLDER + user + "_" + str(int(time.time())) + settings.EXPORT_FILE_SUFFIX, "a")
+	results_file = open(settings.EXPORTED_DATA_FOLDER + user + "_" + str(int(time.time())) + settings.EXPORT_FILE_SUFFIX, "a")
 	#logger.debug("Results file: " + str(results_file))
 	service_response = {}
 	try:
