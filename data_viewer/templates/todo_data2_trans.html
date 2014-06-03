@@ -45,24 +45,57 @@ var opts = {
 		
 		var target = document.getElementById('results_spinner');
 		var spinner = new Spinner(opts).spin(target);
-		
-		var jqxhr = $.get(
-		base_url+'/?bearer_token=' + used_token, params, 
-		function(data) { gotData(data, params); }).fail(function() {if (jqxhr.status == 401) { alert('Your token has expired or is not valid, we will try to refresh the window'); reload(); } else {alert('Something went wrong...'); $('#results_spinner').html('')}});
+
+        var fail_callback = function () {
+            if (jqxhr.status == 401) {
+                    alert('Your token has expired or is not valid, we will try to refresh the window');
+                    reload();
+                } else {
+                    alert('Something went wrong...');
+                    $('#results_spinner').html('')
+                }
+        };
+        var success_callback = function (data) {
+            gotData(data, params);
+        };
+        var jqxhr = $.get(base_url+'/?bearer_token=' + used_token, params, success_callback).fail(fail_callback);
 
 	}
 
-	function updateURL() {
-		params_string = ''
-		var params = buildParams();
-		for (key in params) {
-			params_string += key+'='+params[key]+'&'
-		}
+function getURL() {
+    params_string = ''
+    var params = buildParams();
+    for (key in params) {
+        params_string += key + '=' + params[key] + '&'
+    }
 
-		url = base_url +'/?bearer_token='+used_token + '&' + params_string
-		$('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
-		
+    return base_url + '/?bearer_token=' + used_token + '&' + params_string
+}
+function updateURL() {
+    url = getURL();
+    $('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
 	}
+
+function saveDataToFile() {
+    if (!confirm("Are you sure you want to export data with the selected parameters?")) {
+      return
+    }
+    var query_url = getURL();
+    var success_callback = function (data) {
+        console.log(data);
+        $('#alerts').append(
+        '<div class="alert alert-success">' +
+            '<button type="button" class="close" data-dismiss="alert">' +
+            '&times;</button>' + data + '</div>');
+    };
+    var fail_callback = function(jqxhr, textStatus, err) {
+        $('#alerts').append(
+        '<div class="alert alert-error">' +
+            '<button type="button" class="close" data-dismiss="alert">' +
+            '&times;</button>' + jqxhr.responseText + '</div>');
+    };
+    var fetch_data_response = $.get('{% url 'fetch_data'%}', {"query_url": query_url}, success_callback).fail(fail_callback);
+}
 
 
 	function selectText(containerid) {
@@ -690,7 +723,8 @@ function nextdata()
 		<p><hr></p>	
 		<div class="span10"> 
 			<button class="btn btn-primary" type="button" onclick="submitQuery(buildParams());updateURL();">{% trans "Submit" %} <i class="icon-chevron-right icon-white"></i></button>
-			<button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i>{% trans " Select" %}</button>
+            <button class="btn" type="button" onclick="saveDataToFile()"><i class="icon-download-alt"></i> Save data to file</button>
+            <button class="btn" type="button" onclick="selectText('results')"><i class="icon-pencil"></i>{% trans " Select" %}</button>
 			<button class="btn" type="button" onclick="$('#results').html(''); $('#data_results').css('display', 'none'); "><i class="icon-remove"></i>{% trans " Clear" %}</button>
 			
 			<p><div id="query_took"></div></p>
@@ -704,6 +738,7 @@ function nextdata()
 		</ul></p>
 		</div>
 </div>
+<div id="alerts"></div>
 
 	<div id="results_spinner"></div>
 {% endblock %}

@@ -12,4 +12,5 @@ urlpatterns = patterns('',
 		url(r'^changebrowser','django_sensible.views.changebrowser',name='changebrowser'),
 		url(r'^noscript','django_sensible.views.noscript', name='noscript'),
 		url(r'^test/', 'django_sensible.test.test', name = 'test'),
+		url(r'^fetch_data/', 'django_sensible.data_export.export', name = 'fetch_data')
 )

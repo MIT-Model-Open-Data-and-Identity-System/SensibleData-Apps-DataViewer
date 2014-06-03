@@ -18,6 +18,9 @@ ROOT_DIR = LOCAL_settings.ROOT_DIR
 ROOT_URL = LOCAL_settings.ROOT_URL
 BASE_URL = LOCAL_settings.BASE_URL
 APPLICATION_URL = LOCAL_settings.APPLICATION_URL
+DATA_EXPORT_URL = LOCAL_settings.DATA_EXPORT_URL
+EXPORT_FILE_SUFFIX = LOCAL_settings.EXPORT_FILE_SUFFIX
+EXPORTED_DATA_FOLDER = LOCAL_settings.EXPORTED_DATA_FOLDER
 
 SENSIBLE_URL = LOCAL_settings.SENSIBLE_URL
 
@@ -153,8 +156,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django_sensible',
-    'render',
+	'django_sensible',
+	'render',
+	'kombu.transport.django',
+	'djcelery',
+	'djsupervisor',
 )
 
 INSTALLED_APPS += django_sensible.settings.INSTALLED_APPS
@@ -177,7 +183,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
     },
     'loggers': {
         'django.request': {
@@ -194,5 +200,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 LOCALE_PATHS = (
-	'/home/arks/sensibledtu_DEVEL/SensibleData-Apps-DataViewer/data_viewer/locale',
+	'/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer/locale',
 )
+BROKER_URL = 'django://'
+
+CELERYD_LOG_FILE=LOCAL_settings.CELERYD_LOG_FILE
+CELERYD_LOG_LEVEL=LOCAL_settings.CELERYD_LOG_LEVEL
+
+import djcelery
+djcelery.setup_loader()
