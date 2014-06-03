@@ -23,6 +23,3 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "data_viewer.settings"
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
-from paste.deploy.config import PrefixMiddleware
-application = PrefixMiddleware(application, prefix='/apps/data_viewer/')
-
