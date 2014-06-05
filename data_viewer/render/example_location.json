@@ -1,109 +1,11 @@
 {
-	"_id": "4acf35f768c1d8f91aa25f6c4673164e669c0f00_cb88b9866e4aed333114166c0f0a4b_1376640849",
-	"timestamp_added": 1376670812,
-	"name": "edu.mit.media.funf.probe.builtin.LocationProbe",
-	"timestamp": 1376640849,
-	"probe": "edu_mit_media_funf_probe_builtin_LocationProbe",
-	"user": "12c9fe625ebd2e90e105c9b7678e0d",
-	"device_id": "17fa14cd33905fa09e80811df9a454dc",
-	"device": "173a7b91-27d3-42ae-9cd1-065131f74cc0",
-	"device_bt_mac": "BB:EC:71:87:7B:01",
-	"data": {
-		"TIMESTAMP": 1376640849,
-		"PROBE": "edu.mit.media.funf.probe.builtin.LocationProbe",
-		"LOCATION": {
-			"mProvider": "fused",
-			"mHasAccuracy": true,
-			"mHasAltitude": false,
-			"mLat1": 0,
-			"mDistance": 0,
-			"mLat2": 0,
-			"geojson": {
-				"type": "Point",
-				"coordinates": [
-					55.7561348,
-					12.5229573
-				]
-			},
-			"mAccuracy": 87,
-			"mLon1": 0,
-			"mLon2": 0,
-			"mLatitude": 55.7561348,
-			"mAltitude": 0,
-			"mExtras": {
-				"locationType": "wifi",
-				"noGPSLocation": {
-					"mProvider": "fused",
-					"mHasAccuracy": true,
-					"mHasAltitude": false,
-					"mLat1": 0,
-					"mDistance": 0,
-					"mLat2": 0,
-					"mAccuracy": 87,
-					"mLon1": 0,
-					"mLon2": 0,
-					"mLatitude": 55.7561348,
-					"mAltitude": 0,
-					"mExtras": {
-						"travelState": "moving",
-						"noGPSLocation": {
-							"mHasAccuracy": true,
-							"mHasAltitude": false,
-							"mHasSpeed": false,
-							"mLon2": 0,
-							"mElapsedRealtimeNanos": 33390796000000,
-							"mResults": [
-								0,
-								0
-							],
-							"mLat1": 0,
-							"mDistance": 0,
-							"mAltitude": 0,
-							"mLat2": 0,
-							"mIsFromMockProvider": false,
-							"mInitialBearing": 0,
-							"mAccuracy": 87,
-							"mBearing": 0,
-							"mTime": 1376640849197,
-							"mLon1": 0,
-							"mLatitude": 55.7561348,
-							"mProvider": "network",
-							"mHasBearing": false,
-							"mLongitude": 12.5229573,
-							"mSpeed": 0
-						},
-						"networkLocationType": "wifi",
-						"networkLocationSource": "cached"
-					},
-					"mSpeed": 0,
-					"mInitialBearing": 0,
-					"mHasSpeed": false,
-					"mElapsedRealtimeNanos": 33390796000000,
-					"mResults": [
-						0,
-						0
-					],
-					"mBearing": 0,
-					"mLongitude": 12.5229573,
-					"mIsFromMockProvider": false,
-					"mTime": 1376640849197,
-					"mHasBearing": false
-				}
-			},
-			"mSpeed": 0,
-			"mInitialBearing": 0,
-			"mHasSpeed": false,
-			"mElapsedRealtimeNanos": 33390796000000,
-			"mResults": [
-				0,
-				0
-			],
-			"mBearing": 0,
-			"mLongitude": 12.5229573,
-			"mIsFromMockProvider": false,
-			"mTime": 1376640849197,
-			"mHasBearing": false
-		}
-	},
-	"uuid": "1690b17a-1196-45bf-9969-c730e880e6e5-v0.3.2.2-0.5"
+	"timestamp": 1376652243,
+    "user": "cb88b9866e4aed333114166c0f0a4b",
+    "device_id": "17ea14cd33905fa09e80811df9a454dc",
+    "sensible_token": "b50e08da81",
+    "uuid": "327e3502-fdaf-4ee0-a777-04d69e0270dd-v0.3.2.2-0.5",
+    "lat": 55.7561348,
+    "lon": 12.5229573,
+    "accuracy": 20.2,
+    "provider": "network"
 }

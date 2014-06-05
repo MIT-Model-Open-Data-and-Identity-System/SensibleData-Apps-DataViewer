@@ -7,7 +7,6 @@ import json
 from django_sensible import SECURE_CONFIG
 from django.conf import settings
 from django.core.urlresolvers import reverse
-import utils
 
 
 def getTokens(request):
@@ -33,7 +32,7 @@ def location(request):
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/location'
 	
 	scope = 'connector_raw.all_data=checked'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_location.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_location.json').read()), "fields")
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
@@ -46,7 +45,7 @@ def bluetooth(request):
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/bluetooth'
 
 	scope = 'connector_raw.all_data=checked'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_bluetooth.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_bluetooth.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -60,7 +59,7 @@ def calllog(request):
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/calllog'
 
 	scope = 'connector_raw.all_data=checked'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_calllog.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_calllog.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -74,7 +73,7 @@ def sms(request):
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/sms'
 
 	scope = 'connector_raw.all_data=checked'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_sms.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_sms.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -88,7 +87,7 @@ def wifi(request):
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/wifi'
 
 	scope = 'connector_raw.all_data=checked'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_wifi.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_wifi.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -101,7 +100,7 @@ def likes(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/likes/'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_likes.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -114,7 +113,7 @@ def friends(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/friends'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_friends.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -127,7 +126,7 @@ def birthday(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/birthday'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_birthday.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -140,7 +139,7 @@ def education(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/education'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_education.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -153,7 +152,7 @@ def friendlists(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/friendlists'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_friendlists.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -166,7 +165,7 @@ def groups(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/groups'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_groups.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -179,7 +178,7 @@ def hometown(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/hometown'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_hometown.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -192,7 +191,7 @@ def interests(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/interests'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_interests.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -205,7 +204,7 @@ def locationfacebook(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/location'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_locationfacebook.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -218,7 +217,7 @@ def political(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/political'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_political.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -231,7 +230,7 @@ def religion(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/religion'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_religion.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -244,7 +243,7 @@ def work(request):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/facebook/work'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_religion.json').read()),False)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_facebook.json').read()), "fields")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -252,13 +251,13 @@ def work(request):
 	return render_to_response('todo_data2.html', {'tokens': tokens, 'example_doc': example_doc,'base_url': base_url, 'work':True}, context_instance=RequestContext(request))
 
 @login_required
-def questionnarie(request):
+def questionnaire(request):
 	
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/questionnaire'
-	example_doc = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_questionnarie.json').read()),False)
-	example_doc1 = utils.createExampleDoc(json.loads(open(settings.ROOT_DIR+'render/example_questionnarie2.json').read()),True)
+	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_questionnaire.json').read()), "fields")
+	example_doc1 = create_links(json.loads(open(settings.ROOT_DIR+'render/example_questionnaire2.json').read()),"questions")
 
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
@@ -277,3 +276,9 @@ def users(request):
 
 	return render_to_response('users.html', {'tokens': tokens, 'base_url': base_url}, context_instance=RequestContext(request))
 
+
+def create_links(document, field_name):
+	link_dictionary = {}
+	for key in document:
+		link_dictionary["<a href='#' onclick=\"$('#" + field_name + "')[0].value += '" + key + ",'\">" + str(key) + "</a>"] = document[key]
+	return json.dumps(link_dictionary, sort_keys=True, indent=2, separators=(',', ':')).replace('\\"', '"')
