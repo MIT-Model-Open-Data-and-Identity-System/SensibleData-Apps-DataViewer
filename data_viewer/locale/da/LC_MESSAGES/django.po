@@ -51,8 +51,8 @@ msgid "Quit"
 msgstr "Afslut"
 
 #: templates/base_trans.html:102
-msgid "Set my name"
-msgstr "Sætte mit navn"
+msgid "Set my email"
+msgstr "Sætte min email"
 
 #: templates/base_trans.html:104
 msgid "Logout"

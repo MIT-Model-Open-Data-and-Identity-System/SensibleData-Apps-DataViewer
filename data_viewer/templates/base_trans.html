@@ -90,16 +90,16 @@
 			<ul class="nav pull-right action">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
 					<i class="icon-user icon-white"></i>
-					{% if user.first_name != '' %}
-					{{ user.first_name }}
+					{% if user.email != '' %}
+					{{ user.email }}
 					{% else %}
 					My Profile
 					{% endif %}
 					<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					{% if not user.first_name %}
-					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> {% trans "Set my name" %}</a></li>
+					{% if not user.email %}
+					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> {% trans "Set my email" %}</a></li>
 					{% endif %}
 					<li><a href="{% url 'logout' %}"><i class="icon-road"></i> {% trans "Logout" %}</a></li>
 				</ul>
