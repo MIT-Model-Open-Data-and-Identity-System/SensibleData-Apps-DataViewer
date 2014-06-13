@@ -73,16 +73,16 @@
 			<ul class="nav pull-right action">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
 					<i class="icon-user icon-white"></i>
-					{% if user.first_name != '' %}
-					{{ user.first_name }}
+					{% if user.email != '' %}
+					{{ user.email }}
 					{% else %}
 					My Profile
 					{% endif %}
 					<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					{% if not user.first_name %}
-					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> Set my name</a></li>
+					{% if not user.email %}
+					<li><a href="{% url 'request_attributes' %}"><i class="icon-user"></i> Set my email</a></li>
 					{% endif %}
 					<li><a href="{% url 'logout' %}"><i class="icon-road"></i> Logout</a></li>
 				</ul>
@@ -188,7 +188,7 @@
 				<li class="nav-header"><a href="{% url 'raw_users' %} ">User</a></li>
 			</ul>
 			<ul class="nav nav-list">
-					<li class="nav-header"><a href="{% url 'raw_questionnarie' %} ">Questionnaires</a></li>
+					<li class="nav-header"><a href="{% url 'raw_questionnaire' %} ">Questionnaires</a></li>
 			</ul>
 			<ul class="nav nav-list">
 					<li class="nav-header">Phone Data</li>
