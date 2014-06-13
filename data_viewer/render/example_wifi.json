@@ -1,27 +1,10 @@
 {
-    "_id": "41a4b783007f6f084d0342f3ca754552724dd390_cb88b9866e4aed333114166c0f0a4b_1376548951",
-    "timestamp_added": 1376647623,
-    "name": "edu.mit.media.funf.probe.builtin.WifiProbe",
-    "timestamp": 1376548951,
-    "probe": "edu_mit_media_funf_probe_builtin_WifiProbe",
+    "timestamp": 1376652243,
     "user": "cb88b9866e4aed333114166c0f0a4b",
     "device_id": "17ea14cd33905fa09e80811df9a454dc",
-    "device": "179a7b91-27d3-42ae-9cd1-065131f74cc0",
-    "device_bt_mac": "B0:EC:71:87:7B:01",
-    "data": {
-        "TIMESTAMP": 1376548951,
-        "PROBE": "edu.mit.media.funf.probe.builtin.WifiProbe",
-        "SCAN_RESULTS": [
-            {
-                "SSID": "ROCKPALACE",
-                "BSSID": "fe:f5:28:88:cb:3c",
-                "level": -76,
-                "timestamp": 75637892211,
-                "capabilities": "[WPA2-PSK-CCMP][WPS][ESS]",
-                "frequency": 2417
-            }
-        ]
-    },
     "sensible_token": "b50e08da81",
-    "uuid": "0037e035-7ac3-4771-bd61-26d4ec169265-v0.3.2.2-0.5"
+    "uuid": "327e3502-fdaf-4ee0-a777-04d69e0270dd-v0.3.2.2-0.5",
+    "ssid": "ROCKPALACE",
+    "bssid": "fe:f5:28:88:cb:3c",
+    "level": -76
 }

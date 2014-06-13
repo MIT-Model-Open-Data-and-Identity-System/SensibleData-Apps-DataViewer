@@ -16,6 +16,8 @@ def export(request):
 		username = request.user.username
 
 		user_email = request.user.email
+		if not user_email:
+			return HttpResponse("Please set your e-mail before requesting data. You can do this by clicking on 'Set my email' under the 'My profile' menu", status=403, content_type="text/plain")
 
 		cache = get_cache('default')
 		if cache.get(username):

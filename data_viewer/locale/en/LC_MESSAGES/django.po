@@ -50,7 +50,7 @@ msgid "Quit"
 msgstr ""
 
 #: templates/base_trans.html:102
-msgid "Set my name"
+msgid "Set my email"
 msgstr ""
 
 #: templates/base_trans.html:104

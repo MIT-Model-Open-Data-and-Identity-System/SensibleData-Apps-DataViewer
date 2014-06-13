@@ -17,8 +17,8 @@ function drawpoints(listmarkers, content, map){
 		}
 		else{
 				for (i in listmarkers){
-					date1=(content[content.length-1].data.TIMESTAMP)*1000
-					date2=(content[0].data.TIMESTAMP)*1000
+					date1=(content[content.length-1].timestamp)*1000
+					date2=(content[0].timestamp)*1000
 					if ((listmarkers[i].date.getTime()>date1)&&(listmarkers[i].date.getTime()<date2)){
 						listmarkers[i].setVisible(true);
 					}
@@ -52,12 +52,12 @@ function callmap(content){
 		
 		for (var i=0; i<content.length; i++)
 				{
-					date=new Date(content[i].data.TIMESTAMP*1000);
-					longitude=content[i]['data']['LOCATION']['geojson']['coordinates'][1];
-					latitude=content[i]['data']['LOCATION']['geojson']['coordinates'][0];
+					date=new Date(content[i]['timestamp']);
+					longitude=content[i]['lat'];
+					latitude=content[i]['lon'];
 					point_new = new google.maps.LatLng(latitude,longitude);
 					marker = new google.maps.Marker({
-				            date:new Date(content[i].data.TIMESTAMP*1000),
+				            date:new Date(content[i]['timestamp']),
 					    map:map,
 					    draggable:false,
 					    position: point_new,
@@ -101,7 +101,7 @@ function callmap(content){
 	//First we find their indexes
 	for (var i=0;  i<flights.length; i++)
 		{
-			dia=flights[i].data.TIMESTAMP*1000
+			dia=flights[i]['timestamp']
 			if (dia<1375308000000){
 				indexes.push(i)
 			}
@@ -115,7 +115,7 @@ function callmap(content){
 
 	flights.forEach(function(d, i) {
 			d.index = i;
-	    		d.date = new Date(d.data.TIMESTAMP*1000);		
+	    		d.date = new Date(d.timestamp*1000);
 	  });
 
 	
@@ -133,8 +133,8 @@ function callmap(content){
 	      dates = date.group(d3.time.day);
 	
 	// Create this variables for the chart domain and filter
-	firstdatedomain=new Date((date.top(flight.size())[flight.size()-1].data.TIMESTAMP)*1000)
-	lastdatedomain=new Date((date.top(1)[0].data.TIMESTAMP)*1000)
+	firstdatedomain=new Date((date.top(flight.size())[flight.size()-1].timestamp)*1000)
+	lastdatedomain=new Date((date.top(1)[0].timestamp)*1000)
 
 	var margin = {top: 40, right: 40, bottom: 40, left:40},
 	    width = 900;
