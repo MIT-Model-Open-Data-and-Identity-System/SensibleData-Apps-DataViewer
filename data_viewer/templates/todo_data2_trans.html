@@ -453,7 +453,8 @@ function nextdata()
 				params['format'] = 'json'
 			}
 
-		params['decrypted'] = document.getElementById('decrypted').checked
+		params['decrypted'] = document.getElementById('decrypted').checked;
+        params['map_to_users'] = document.getElementById('mapBtToUsers').checked ? 1 : 0;
 
 		if (document.getElementById('fields').value !='')
 			{params['fields'] = document.getElementById('fields').value}
@@ -559,6 +560,11 @@ function nextdata()
 <div class="span5" id="not_for_researcher_decrypted"> 
 	<p class="lead"><input type="checkbox" id="decrypted" value="Decrypted"> {% trans "Decrypted" %} </input></p>
 </div>
+{% if bluetooth %}
+    <div class="span5" id="not_for_user_users_div">
+	    <p class="lead"><input type="checkbox" id="mapBtToUsers" value="1"> Map Bluetooth addresses to users</p>
+    </div>
+{% endif %}
 
 	
 <div class="span12">
