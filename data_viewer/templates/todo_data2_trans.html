@@ -454,8 +454,19 @@ function nextdata()
 			}
 
 		params['decrypted'] = document.getElementById('decrypted').checked;
-        params['map_to_users'] = document.getElementById('mapBtToUsers').checked ? 1 : 0;
+        var map_to_users_checkbox = document.getElementById('mapBtToUsers');
+        if (map_to_users_checkbox != null) {
+            params['map_to_users'] = map_to_users_checkbox.checked ? 1 : 0;
+        }
+        var questionnaire_form_version = document.getElementById('formVersion');
+        if (questionnaire_form_version != null) {
+            var form_versions = JSON.parse(JSON.stringify({{ form_versions|safe }}));
+            var selected_form_version = form_versions[questionnaire_form_version.value];
+            if (selected_form_version != null) {
+                params['form_version'] = selected_form_version;
+            }
 
+        }
 		if (document.getElementById('fields').value !='')
 			{params['fields'] = document.getElementById('fields').value}
 		{%if questionnaire%}
@@ -566,7 +577,18 @@ function nextdata()
     </div>
 {% endif %}
 
-	
+{% if questionnaire %}
+    <div class="span5">
+        <label>{% trans "Questionnaire version" %}</label>
+        <select class="form-control" id="formVersion">
+            <option>All</option>
+            {% for label in form_version_labels %}
+                <option>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}
+
 <div class="span12">
 	<label>{% trans "Sort by" %}</label>
 		<p class="lead">
@@ -602,29 +624,6 @@ function nextdata()
 </div> 
 
 {% if questionnaire %}
-<!--
-<div class="span5"> 
-	<label>{% trans "Questionnaire" %}</label>
-	<script>
-		function changeexample(){
-			var SelectList = $('select#quest');
-			var quest = $('option:selected', SelectList).val();
-			if (quest=='example_1'){
-				document.getElementById('example_doc2').style.display="none";
-				document.getElementById('example_doc1').style.display="block";
-			}
-			else if (quest=='example_2'){
-				document.getElementById('example_doc1').style.display="none";
-				document.getElementById('example_doc2').style.display="block";
-			}
-		}
-	</script>
-	<select name="quest" id='quest' class="form-control" onchange="changeexample(this);">
-		<option value="example_1">Questionnaire 1</option>
-		<option value="example_2">Questionnaire 2</option>
-	</select>
-</div> 
--->
 <div class="span5"> 
 	<label>{% trans "Questions to return" %}</label>
 		<div class="input-append">
