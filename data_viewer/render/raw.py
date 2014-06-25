@@ -1,12 +1,12 @@
-from django.http import HttpResponse
+
+import json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from django_sensible import oauth2
-import json
-from django_sensible import SECURE_CONFIG
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django_sensible import oauth2
+from django_sensible import SECURE_CONFIG
 
 
 def getTokens(request):
@@ -262,7 +262,9 @@ def questionnaire(request):
 	if not tokens:
 		return render_to_response('sensible/start_auth.html', {'scope': scope, 'dashboard_url': settings.SERVICE_URL+'researcher/'}, context_instance=RequestContext(request))
 
-	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc1': example_doc1, 'base_url': base_url, 'questionnaire':True}, context_instance=RequestContext(request))
+	form_versions = json.dumps(settings.QUESTIONNAIRE_VERSIONS)
+	form_versions_labels = settings.QUESTIONNAIRE_VERSIONS.keys()
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'example_doc1': example_doc1, 'base_url': base_url, 'questionnaire':True, 'form_versions': form_versions, 'form_version_labels': form_versions_labels}, context_instance=RequestContext(request))
 
 @login_required
 def users(request):
