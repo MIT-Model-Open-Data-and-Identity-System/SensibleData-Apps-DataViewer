@@ -34,7 +34,7 @@ def build_response_phone_data(request, endpoint):
 	if not tokens:
 		return get_start_auth_response(request, scope)
 
-	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'endpoint':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, endpoint:True}, context_instance=RequestContext(request))
 
 def build_response_facebook(request, endpoint):
 	tokens = getTokens(request)
@@ -45,7 +45,7 @@ def build_response_facebook(request, endpoint):
 	if not tokens:
 		return get_start_auth_response(request, scope)
 
-	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, 'endpoint':True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, endpoint:True}, context_instance=RequestContext(request))
 
 def build_response_questionnaire(request, endpoint):
 	tokens = getTokens(request)
