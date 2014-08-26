@@ -16,8 +16,8 @@ framework.
 import os
 import sys
 
-sys.path.append('/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer/data_viewer')
-sys.path.append('/Users/radugatej/DTU/sensibleDTU/SensibleData-Apps-DataViewer')
+sys.path.append('/home/sensibleDTU/SensibleData-Apps/SensibleData-Apps-DataViewer/data_viewer')
+sys.path.append('/home/sensibleDTU/SensibleData-Apps/SensibleData-Apps-DataViewer')
 os.environ["DJANGO_SETTINGS_MODULE"] = "data_viewer.settings"
 
 from django.core.wsgi import get_wsgi_application

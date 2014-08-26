@@ -661,6 +661,9 @@ function nextdata()
 	</div>
 
 	<script type="text/javascript">
+        if ({{ wifi|yesno:"true,false" }}) {
+            $('#start_date')[0].value = Math.floor(Date.now() / 1000) - (3600 * 24 * 30);
+        }
 		$('#start_date_picker').datepicker()
 			.on('changeDate', function(e){
 			var y = e.date.getTime()/1000
@@ -679,6 +682,9 @@ function nextdata()
 	</div>
 
 	<script type="text/javascript">
+        if ({{ wifi|yesno:"true,false" }}) {
+            $('#end_date')[0].value = Math.floor(Date.now() / 1000);
+        }
 		$('#end_date_picker').datepicker()
 			.on('changeDate', function(e){
 			var y = e.date.getTime()/1000
