@@ -1,0 +1,42 @@
+{% extends "base_trans.html" %}
+
+{% block content %}
+    {% load staticfiles %}
+    <script src="http://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+     <script src="{% static "data_quality.js" %}"></script>
+    {% load i18n %}
+
+    <link rel='stylesheet' type="text/css" href='{% static "data_quality.css" %}'>
+
+<div class="page-header">
+	<h3>Data quality</h3>
+	<div style="word-wrap: break-word;" id="div_url"></div>
+</div>
+    {% for key, value in quality_types.items %}
+
+
+    <h4>{{ value }}</h4>
+    <div id="loading-{{ key }}">
+        <img src="{% static "img/spinner.gif" %}" alt="Loading..." style = "width:24px;height:auto;margin:0 auto;margin-left:35%"/>
+    </div>
+    <svg class="chart-{{ key }}"></svg>
+
+    <script>
+
+        $.ajax({
+            url: "{{ root_url }}" + "get_quality",
+            data: {"data_type": "{{ key }}"},
+            success: function(data) {
+
+                $("#loading-" + "{{ key }}").hide();
+                createQualityChartFromJSON(data, "{{ key }}");
+
+            },
+
+            error: function(data) {
+                $("#loading-" + "{{ key }}").text(data.statusText);
+            }
+        });
+    </script>
+    {% endfor %}
+{% endblock %}
