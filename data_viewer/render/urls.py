@@ -29,6 +29,6 @@ urlpatterns = patterns('',
 	url(r'raw_users', 'render.raw.users', name='raw_users'),
 	url(r'^about/', 'render.views.about', name='about'),
 	url(r'data_quality', 'render.data_quality.data_quality', name='data_quality'),
-	url(r'get_quality', 'render.data_quality.get_quality', name='get_quality'),
+	url(r'get_quality_users_for_period', 'render.data_quality.get_quality_users_for_period', name='get_quality_users_for_period'),
 	url(r'^', 'render.views.home', name='home'),
 )

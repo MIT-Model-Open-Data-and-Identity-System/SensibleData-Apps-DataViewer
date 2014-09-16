@@ -1,4 +1,5 @@
 import calendar
+from collections import OrderedDict
 import json
 import urllib
 import urllib2
@@ -30,26 +31,34 @@ def get_month_day_range(date):
 	return first_day, last_day
 
 @login_required
-def get_quality(request):
+def get_quality_users_for_period(request):
+	start = request.GET.get("start")
+	end = request.GET.get("end")
+
+	start = datetime.datetime.strptime(start, "%Y-%m-%d")
+	end = datetime.datetime.strptime(end, "%Y-%m-%d")
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
 	if not tokens:
 		return get_start_auth_response(request, scope)
 
-	project_start = datetime.datetime(2013, 9, 1)
-	today =  datetime.datetime.now()
 	monthly_quality = []
-	for dt in rrule.rrule(rrule.MONTHLY, dtstart=project_start, until=today):
+	for dt in rrule.rrule(rrule.MONTHLY, dtstart=start, until=end):
 		data_quality_url = settings.SERVICE_URL + 'connectors/connector_answer/v1/data_quality_question/get_data_stats_for_period/?'
-		params = urllib.urlencode({"start_date": get_month_day_range(dt)[0].strftime("%Y-%m-%d"), "end_date": get_month_day_range(dt)[1].strftime("%Y-%m-%d"), "data_type": request.GET.get("data_type"), "bearer_token": tokens.get("connector_raw.all_data_researcher")})
+		month_day_range = get_month_day_range(dt)
+		params = urllib.urlencode({"start_date": month_day_range[0].strftime("%Y-%m-%d"), "end_date": month_day_range[1].strftime("%Y-%m-%d"), "data_type": request.GET.get("data_type"), "bearer_token": tokens.get("connector_raw.all_data_researcher")})
 		quality = json.loads(urllib2.urlopen(data_quality_url + params).read())
-		good_users = len([doc["quality"] for doc in quality if doc["quality"] > 0.7])
+		good_users = [doc["user"] for doc in quality if doc["quality"] > 0.7]
 
-		monthly_quality.append({"month": dt.strftime("%Y %b"), "quality": good_users})
+		monthly_quality.append({"month": dt.strftime("%Y %b"),
+								"month_start": month_day_range[0].strftime("%Y-%m-%d"),
+								"month_end": month_day_range[1].strftime("%Y-%m-%d"),
+								"quality": len(good_users),
+								"good_users": good_users})
 	return HttpResponse(json.dumps(monthly_quality), status=200, content_type="application/json")
 
 @login_required
 def data_quality(request):
 
-	quality_types = {"bluetooth": "Bluetooth", "calllog": "Call Log", "sms": "SMS", "location": "Location"}
+	quality_types = OrderedDict({"bluetooth": "Bluetooth", "location": "Location", "calllog": "Call Log", "sms": "SMS"})
 	return render_to_response("data_quality.html", {"quality_types": quality_types, "root_url": settings.BASE_URL + settings.ROOT_URL}, context_instance=RequestContext(request))

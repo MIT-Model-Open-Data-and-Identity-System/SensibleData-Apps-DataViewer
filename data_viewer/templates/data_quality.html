@@ -22,14 +22,17 @@
     <svg class="chart-{{ key }}"></svg>
 
     <script>
+        var today = new Date();
+        var todayString = today.getFullYear().toString() + "-" + (today.getMonth() + 1).toString() + "-" + today.getDate().toString();
 
         $.ajax({
-            url: "{{ root_url }}" + "get_quality",
-            data: {"data_type": "{{ key }}"},
+            url: "{{ root_url }}" + "get_quality_users_for_period",
+            data: {"data_type": "{{ key }}", "start": "2013-09-01", "end": todayString},
             success: function(data) {
-
                 $("#loading-" + "{{ key }}").hide();
-                createQualityChartFromJSON(data, "{{ key }}");
+                var rawUrl = "{{ root_url }}" + "raw_phone_" + "{{ key }}";
+
+                createQualityChartFromJSON(data, "{{ key }}", rawUrl);
 
             },
 

@@ -1,4 +1,4 @@
-function createQualityChartFromJSON(data, chartId) {
+function createQualityChartFromJSON(data, chartId, rawUrl) {
     var margin = {top: 20, right: 20, bottom: 30, left: 40},
         width = 900 - margin.left - margin.right,
         height = 380 - margin.top - margin.bottom;
@@ -60,7 +60,7 @@ function createQualityChartFromJSON(data, chartId) {
         })
         .attr("height", function (d) {
             return height - y(d['quality']);
-        });
+        }).on("click", click);
 
     svg.selectAll(".bar text")
         .data(data).enter()
@@ -76,5 +76,11 @@ function createQualityChartFromJSON(data, chartId) {
         .text(function (d) {
             return d['quality'];
         });
+
+    function click(d)
+    {
+        params = "?users_to_return=" + d['good_users'].join() + "&start_date=" + d["month_start"] + "&end_date=" + d["month_end"];
+        window.location.replace(rawUrl + params)
+    }
 
 }
