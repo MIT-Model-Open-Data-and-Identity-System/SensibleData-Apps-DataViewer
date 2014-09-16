@@ -73,7 +73,7 @@ function getURL() {
 }
 function updateURL() {
     url = getURL();
-    $('#div_url').html('<small><a href="'+url+'">'+url+'</a></small>')
+    $('#div_url').html('<small><a id="url_text" href="'+url+'">'+url.slice(0,250)+'...</a></small>');
 	}
 
 function saveDataToFile() {
@@ -664,6 +664,12 @@ function nextdata()
         if ({{ wifi|yesno:"true,false" }}) {
             $('#start_date')[0].value = Math.floor(Date.now() / 1000) - (3600 * 24 * 30);
         }
+
+        if ("{{ start_date }}".length > 0) {
+            var start_date = new Date("{{ start_date }}");
+            $('#start_date')[0].value = Math.floor(start_date.getTime() / 1000);
+        }
+
 		$('#start_date_picker').datepicker()
 			.on('changeDate', function(e){
 			var y = e.date.getTime()/1000
@@ -684,6 +690,10 @@ function nextdata()
 	<script type="text/javascript">
         if ({{ wifi|yesno:"true,false" }}) {
             $('#end_date')[0].value = Math.floor(Date.now() / 1000);
+        }
+        if ("{{ end_date }}".length > 0) {
+            var end_date = new Date("{{ end_date }}");
+            $('#end_date')[0].value = Math.floor(end_date.getTime() / 1000);
         }
 		$('#end_date_picker').datepicker()
 			.on('changeDate', function(e){
@@ -706,7 +716,7 @@ function nextdata()
 
 <div class="span5" id="not_for_user_users_div"> 
 	<label>{% trans "Users" %}</label>
-			<textarea rows="3" id='not_for_user_users' placeholder="{% trans "Comma separated list of users" %}"></textarea>
+			<textarea rows="3" id='not_for_user_users' placeholder="{% trans "Comma separated list of users" %}">{{ users_to_return }}</textarea>
 </div> 
 
 
