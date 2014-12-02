@@ -4,7 +4,7 @@ from django.core.cache import get_cache
 from django.http import HttpResponse
 from djcelery.models import TaskMeta
 from django_sensible.identity import getAttributes
-from django_sensible.tasks import fetch_data_worker, notify_user
+from django_sensible.exporter import fetch_data_worker, notify_user
 
 
 def export(request):

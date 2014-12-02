@@ -28,13 +28,21 @@ def getTokens(request):
 def build_response_phone_data(request, endpoint):
 	tokens = getTokens(request)
 	base_url = settings.SERVICE_URL+'connectors/connector_raw/v1/' + endpoint
+	users_to_return =  request.GET.get("users_to_return", "")
+	start_date = request.GET.get("start_date", "")
+	end_date = request.GET.get("end_date", "")
 
 	scope = 'connector_raw.all_data=checked'
 	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_' + endpoint + '.json').read()), "fields")
 	if not tokens:
 		return get_start_auth_response(request, scope)
 
-	return render_to_response('todo_data2_trans.html', {'tokens': tokens, 'example_doc': example_doc, 'base_url': base_url, endpoint:True}, context_instance=RequestContext(request))
+	return render_to_response('todo_data2_trans.html', {'tokens': tokens,
+														'example_doc': example_doc,
+														'base_url': base_url,
+														'users_to_return': users_to_return,
+														'start_date': start_date,
+														'end_date': end_date, endpoint: True}, context_instance=RequestContext(request))
 
 def build_response_facebook(request, endpoint):
 	tokens = getTokens(request)
@@ -50,7 +58,7 @@ def build_response_facebook(request, endpoint):
 def build_response_questionnaire(request, endpoint):
 	tokens = getTokens(request)
 	scope = 'connector_raw.all_data=checked'
-	base_url = settings.SERVICE_URL+'connectors/connector_answer/v1/' + endpoint
+	base_url = settings.SERVICE_URL+'connectors/' + endpoint
 	example_doc = create_links(json.loads(open(settings.ROOT_DIR+'render/example_questionnaire.json').read()), "fields")
 	example_doc1 = create_links(json.loads(open(settings.ROOT_DIR+'render/example_questionnaire2.json').read()),"questions")
 
@@ -136,11 +144,11 @@ def work(request):
 
 @login_required
 def questionnaire(request):
-	return build_response_questionnaire(request, "questionnaire")
+	return build_response_questionnaire(request, "connector_raw/v1/questionnaire")
 
 @login_required
 def questionnaire_grouped_by_user(request):
-	return build_response_questionnaire(request, "aggregate_questionnaire_question/get_aggregated_questionnaire_data")
+	return build_response_questionnaire(request, "connector_answer/v1/aggregate_questionnaire_question/get_aggregated_questionnaire_data")
 
 @login_required
 def users(request):
