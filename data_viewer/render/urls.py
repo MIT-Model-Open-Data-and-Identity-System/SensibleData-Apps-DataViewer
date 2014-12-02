@@ -28,5 +28,7 @@ urlpatterns = patterns('',
 	url(r'questionnaire_grouped_by_user', 'render.raw.questionnaire_grouped_by_user', name='questionnaire_grouped_by_user'),
 	url(r'raw_users', 'render.raw.users', name='raw_users'),
 	url(r'^about/', 'render.views.about', name='about'),
+	url(r'data_quality', 'render.data_quality.data_quality', name='data_quality'),
+	url(r'get_quality_users_for_period', 'render.data_quality.get_quality_users_for_period', name='get_quality_users_for_period'),
 	url(r'^', 'render.views.home', name='home'),
 )
