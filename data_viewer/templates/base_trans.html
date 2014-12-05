@@ -231,11 +231,15 @@
 					<li><a href="{% url 'raw_facebook_political' %} ">{% trans "Political" %}</a></li>
 					<li><a href="{% url 'raw_facebook_religion' %} ">{% trans "Religion" %}</a></li>
 					<!--<li><a href="{% url 'raw_facebook_work' %} ">Work</a></li>-->
+                    <li class="nav-header">{% trans "Other" %}</li>
+                    <li><a href="{% url 'raw_grades' %} ">{% trans "Grades" %}</a></li>
 			{% if tokens.connector_raw_all_data_researcher %}
-            <li class="nav-header">{% trans "Data Quality" %}</li>
-			<li class="divider"></li>
-		    <li><a href="{% url 'data_quality' %} ">Phone data quality</a></li>
-                {% endif %}
+                <li class="nav-header">{% trans "Other" %}</li>
+                <li><a href="{% url 'raw_grades' %} ">{% trans "Grades" %}</a></li>
+                <li class="nav-header">{% trans "Data Quality" %}</li>
+			    <li class="divider"></li>
+		        <li><a href="{% url 'data_quality' %} ">Phone data quality</a></li>
+            {% endif %}
 
 			</ul>
 					
