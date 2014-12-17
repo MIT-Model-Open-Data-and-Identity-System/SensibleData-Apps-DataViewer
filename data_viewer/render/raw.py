@@ -142,6 +142,9 @@ def religion(request):
 def work(request):
 	return build_response_facebook(request, "work")
 
+def grades(request):
+	return build_response_phone_data(request, "grades")
+
 @login_required
 def questionnaire(request):
 	return build_response_questionnaire(request, "connector_raw/v1/questionnaire")
