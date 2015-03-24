@@ -95,6 +95,10 @@ def wifi(request):
 	return build_response_phone_data(request, "wifi")
 
 @login_required
+def screen(request):
+	return build_response_phone_data(request, "screen")
+
+@login_required
 def likes(request):
 	return build_response_facebook(request, "likes")
 
